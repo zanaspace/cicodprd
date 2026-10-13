@@ -10,7 +10,6 @@
 - **Author:** CICOD Product & Engineering Team
 - **Target Sprint:** Sprint 0 (Week 1)
 - **Target Audience:** Frontend Engineers, UI/UX Designers, QA Automation Engineers
-- **Reference Standard:** [cicod_premium_styleguide.html](file:///c:/Users/CI-STAFF/Documents/CICOD%20TEST/Cicod%20Design%20Systems/cicod_premium_styleguide.html)
 - **Last Updated:** 2026-10-13
 
 ---
@@ -21,12 +20,9 @@ The legacy CRM (`internal.cicod.com/crm`) suffered from extreme visual and struc
 Sprint 0 establishes the unshakeable design system foundation in Next.js (`src/components/ui/`, `src/components/layout/`, and `src/app/globals.css`). It translates `cicod_premium_styleguide.html` into reusable CSS tokens, accessible interactive atoms, and a universal data table harness.
 
 #### Core Deliverables
-1. **Design Token Engine (`globals.css`):** Signal Primary, Ink Secondary, Paper background, and semantic alert variables synchronized across light and dark modes.
-2. **Accessible Presentation Atoms:** `Button`, `StatusBadge`, `HealthBadge`, `SwitchRow`, `Select`, `Input`, and `Modal`.
-3. **Universal Data Table Harness:** `DataTable<T>` with virtualized scrolling, sticky actions column (48px), column visibility chooser ("Customize View"), and windowed numeric `Pagination` (`1 2 3 … 10`).
-4. **Safe Action Modals:** `ConfirmDialog` requiring reason capture before executing destructive tenant or user mutations.
-
----
+1. **Tokens & Theme System (`s0-d1`):** Paper & Navy CSS variables, Sora + Inter typography, dark mode synchronization. *[Tags: CSS Tokens, Dark Mode, Typography]*
+2. **Universal DataTable & FilterBar (`s0-d2`):** Virtualized table harness with windowed pagination (1 2 3 … 10), column chooser, and sticky actions. *[Tags: DataTable, FilterBar, Pagination]*
+3. **Safe Action Modals & Dialogs (`s0-d3`):** ConfirmDialog requiring typed feedback or reason selection for dangerous actions. *[Tags: Modals, A11y, Safety]*
 
 ### 3. Product Vision & Strategic Objectives
 - **Zero Style Duplication:** Eliminate ~2,500 lines of boilerplate across 7 list views by establishing a single source of truth for UI components.
@@ -44,12 +40,10 @@ Sprint 0 establishes the unshakeable design system foundation in Next.js (`src/c
 
 ### 5. Scope Boundaries
 
-#### 5.1 In-Scope
-- CSS variable token system supporting light and dark themes.
-- Typography engine loading Google Fonts `Sora` and `Inter`.
-- Atomic UI primitives: `Button` (5 variants, 4 sizes), `StatusBadge` (soft pill status/health variants), `SwitchRow` (toggle with left-0 knob alignment).
-- Compound table harness: `DataTable<T>`, `FilterBar` (omni-search + segment selector), and windowed `Pagination`.
-- Accessible dialog primitives: `Modal` (focus trapped) and `ConfirmDialog` (mandatory reason capture).
+#### 5.1 In-Scope Deliverables
+- **Tokens & Theme System:** Paper & Navy CSS variables, Sora + Inter typography, dark mode synchronization.
+- **Universal DataTable & FilterBar:** Virtualized table harness with windowed pagination (1 2 3 … 10), column chooser, and sticky actions.
+- **Safe Action Modals & Dialogs:** ConfirmDialog requiring typed feedback or reason selection for dangerous actions.
 
 #### 5.2 Out-of-Scope
 - Backend database migrations and live REST endpoint integrations (deferred to Sprint 8).
@@ -115,33 +109,48 @@ flowchart TD
 
 ---
 
-### 9. Detailed User Stories & Acceptance Criteria
+### 9. Detailed User Stories & Sprint Tasks
 
-#### User Story 0.1: Accessible Toggle Switch
-*As a CRM operator, I want toggle switches to visually align inside their pill track so that I can immediately discern whether a policy or setting is ON or OFF.*
-- **Given** a `SwitchRow` rendered on any form,
-- **When** the switch state is `false` (OFF),
-- **Then** the white knob is positioned exactly 4px from the left edge (`translate-x-1` from `left-0`).
-- **When** the switch state is `true` (ON),
-- **Then** the white knob is positioned exactly 4px from the right edge (`translate-x-6` from `left-0`), contained within the 44px track without spilling over.
+#### US-0.1 (Deliverable: Tokens & Theme System): Centralized Design Tokens & Theme Engine
+*As a Frontend Engineer / UI Architect, I want a centralized design token dictionary with CSS variables and automated dark mode sync so that every CRM component adheres strictly to the design system with zero hardcoded ad-hoc styles.*
 
-#### User Story 0.2: Windowed Table Pagination
-*As a support specialist, I want predictable pagination buttons so that I can navigate large datasets without 134 buttons cluttering the screen.*
-- **Given** a dataset of 13,355 customer records in `DataTable`,
-- **When** the user views page 1,
-- **Then** the pager shows `1 2 3 … 535` with Prev/Next buttons.
-- **When** the user changes rows per page from 10 to 25,
-- **Then** the total page count recalculates to 535 and page 1 is preserved.
+- **Acceptance Criteria**:
+  - Theme variables switch cleanly between light and dark mode without contrast failure.
+  - Typography rules apply Sora for headings, Inter for body copy, and JetBrains Mono for code.
+  - Tokens are mapped directly to Tailwind utilities and CSS variables.
 
-#### User Story 0.3: Destructive Action Safety Gate
-*As an operations supervisor, I want destructive actions to mandate reason logging so that accidental suspensions or deletions are prevented.*
-- **Given** a user clicks "Suspend Customer" in any row menu,
-- **When** the `ConfirmDialog` opens,
-- **Then** the "Confirm Suspension" button is disabled until a reason code is selected and a note is entered.
+- **Outlined Sprint Tasks**:
+  - [x] `s0-1` (DESIGN · S): **Map styleguide CSS variables to Tailwind & globals.css** - *Ensure --primary, --secondary, --card, --border, --muted are consistent across light/dark.*
+  - [x] `s0-2` (FRONTEND · S): **Build accessible StatusBadge & HealthBadge components** - *Standardize soft badge pills for Draft, Live, Overdue, Healthy, Suspended.*
+  - [x] `s0-6` (FRONTEND · S): **Theme synchronization hook with system preference & storage** - *Implement persistent theme subscriber with zero flash of unstyled content.*
 
----
+#### US-0.2 (Deliverable: Universal DataTable & FilterBar): Virtualized DataTable & Multi-Predicate FilterBar
+*As a Product Operations Specialist, I want a virtualized DataTable component with windowed pagination and responsive column chooser so that I can browse dense datasets of 13,000+ records with fast responsiveness and sticky action access.*
 
-### 10. Technical Architecture & Data Models
+- **Acceptance Criteria**:
+  - Table renders 100+ rows smoothly with windowed pagination (1 2 3 … 10).
+  - Column chooser allows toggling secondary column visibility on dense screens.
+  - Sticky action column remains pinned on horizontal scroll with accessible dropdowns.
+
+- **Outlined Sprint Tasks**:
+  - [x] `s0-3` (FRONTEND · M): **Implement virtualized DataTable with windowed pagination** - *Build table shell with responsive horizontal overflow and sticky action columns.*
+  - [x] `s0-7` (FRONTEND · M): **Build multi-predicate FilterBar with debounced search** - *Support text search, segment pills, and multi-select filter dropdowns.*
+  - [x] `s0-5` (QA · S): **Automated component visual regression check** - *Verify token rendering across desktop (1440px) and tablet resolutions.*
+
+#### US-0.3 (Deliverable: Safe Action Modals & Dialogs): Safe Action Confirmation Modals & Accessible Primitives
+*As a Customer Operations Specialist, I want standardized dialog and modal primitives with typed confirmation gates for dangerous actions so that high-risk actions like tenant suspensions or archiving cannot occur through accidental single-clicks.*
+
+- **Acceptance Criteria**:
+  - Destructive actions require typing a confirmation phrase or selecting a mandatory reason.
+  - Modals enforce keyboard focus trapping and dismiss on Escape with proper ARIA attributes.
+  - Animated entrance and exit transitions match design system tokens.
+
+- **Outlined Sprint Tasks**:
+  - [x] `s0-4` (FRONTEND · M): **Standardize Button and Modal primitives** - *Ensure role='dialog', focus traps, Esc key handling, and aria attributes.*
+  - [x] `s0-8` (FRONTEND · S): **Implement SwitchRow with left-0 knob alignment** - *Interactive toggle with full-card clickability and accessible keyboard focus.*
+  - [x] `s0-9` (QA · S): **Accessibility audit for modal focus traps & screen readers** - *Verify WCAG 2.1 AA keyboard navigation across all dialog interactions.*
+
+### 10. Technical Architecture, Data Models & API Contracts
 
 #### Component Hierarchy
 ```
@@ -165,6 +174,15 @@ src/
 
 ---
 
+#### REST API Contracts
+
+| Method | Endpoint | Functional Contract & Payload Expectation |
+|---|---|---|
+| `GET` | `N/A - Client-side UI Harness` | Sprint 0 focuses on UI atoms and shared presentation architecture. |
+
+
+---
+
 ### 11. Edge Cases & Error Handling Strategies
 - **Text Overflow:** Primary table cells enforce `truncate` with `title` attributes for tooltips on overflow.
 - **Empty Datasets:** Tables render friendly empty states with actionable CTA rather than blank screens.
@@ -179,15 +197,97 @@ src/
 
 ---
 
-### 13. Release Plan, Milestones & Rollout Strategy
+### 13. Release Plan, Milestones & Definition of Done (DoD)
 - **Day 1-2:** Tokens, typography, and basic atom components (`Button`, `StatusBadge`, `SwitchRow`).
 - **Day 3-4:** Data table harness (`DataTable`, `FilterBar`, `Pagination`).
 - **Day 5:** Modal primitives (`Modal`, `ConfirmDialog`, `Toast`) and automated visual regression checks.
 
 ---
 
-### 14. Open Questions, Risks & Dependencies
-- **Risk:** Developers manually writing ad-hoc inline styles instead of using design tokens.
-  - *Mitigation:* Strict ESLint rules and PR checklist enforcing design system components.
-- **Dependency:** Google Fonts CDN accessibility.
-  - *Mitigation:* Self-hosted fallback font family stacks in `globals.css`.
+#### Definition of Done (DoD)
+- [x] All tokens rendered in light and dark mode without color leaks.
+- [x] DataTable supports sticky actions, sorting, and responsive truncation.
+- [x] Zero TypeScript errors with strict typing enabled.
+
+---
+
+### 14. Architectural Risks, Mitigations & Dependencies
+
+#### Key Architectural Risks & Mitigations
+- **Risk & Mitigation:** Ad-hoc styles creeping in if developers bypass design tokens.
+- **Risk & Mitigation:** Inconsistent button sizing if variants are not enforced.
+
+#### External & Internal Dependencies
+- Database schema migrations and tenant isolation verified prior to deployment.
+- Google Fonts and Lucide icon assets bundled locally without unauthenticated CDN lock-in.
+
+---
+
+### 15. Open Questions, Decisions & Next Steps
+
+#### Open Architectural Questions & Decisions
+- **Question:** Should we support high-contrast WCAG AAA theme variants in addition to standard dark mode?
+  - *Decision / Recommendation:* Deferred to post-v2 release; current tokens satisfy WCAG 2.1 AA (contrast ≥ 4.5:1).
+- **Question:** How should icons be managed across design system atoms to prevent bundle bloat?
+  - *Decision / Recommendation:* Enforce tree-shaken named imports from lucide-react with zero ad-hoc SVG injections.
+
+#### Next Sprint Handover & Follow-ups
+- Verify acceptance criteria and automated tests are green before advancing to Sprint 1 (App Shell, Navigation & Reference Data).
+- Conduct sprint retrospective and synchronize status tokens in roadmap database.
+
+### 16. Test Cases, Use Cases & QA Acceptance Scenarios
+
+| Test ID | Category | Severity | Persona | Title | Expected Outcome |
+|---|---|---|---|---|---|
+| `TC-0.1` | Happy Path | **Critical** | UI/UX & Frontend Architect | Light to Dark Mode Token Synchronization | Theme variables transition smoothly without flash of unstyled content. Contrast ratio between body text and card surfaces remains >= 4.5:1 in both light (#FBFBFD) and dark (#090E17) modes. Mode persists after page reload via localStorage. |
+| `TC-0.2` | UX & A11y | **High** | Operations Specialist | Universal DataTable Sticky Actions Column Pinning | Actions column stays pinned at exactly 48px width with semi-transparent border shadow (z-index: 20). Action dropdown menu opens without clipping outside the scroll viewport. |
+| `TC-0.3` | Edge Case | **High** | Operations Specialist | Windowed Pagination Numeric Window Bounds | Pager displays windowed format '1 … 4 5 6 … 134', completely preventing legacy bug where 134 individual buttons wrapped over 5 lines. |
+| `TC-0.4` | Security / RBAC | **Critical** | Operations Auditor | Destructive Action Confirmation with Mandatory Reason | Confirm button remains strictly disabled until a reason code is selected. Modal traps keyboard focus (Tab, Esc). Once confirmed, dispatches destructive mutation and logs reason in audit log. |
+| `TC-0.5` | UX & A11y | **Medium** | Accessibility Auditor | SwitchRow Left-0 Knob Alignment & Keyboard Toggle | Focus ring appears with 2px offset. When OFF, knob sits at left: 4px (translate-x-1). When ON, knob slides smoothly to left: 24px (translate-x-6). Knob never clips outside pill track boundaries. |
+
+#### Detailed Validation Procedures
+
+##### [TC-0.1] Light to Dark Mode Token Synchronization
+- **Category:** Happy Path | **Severity:** Critical | **Persona:** UI/UX & Frontend Architect | **Story:** `US-0.1`
+- **Preconditions:** Clean browser session with default light theme.
+- **Execution Steps:**
+  1. Click Theme toggle button in header ribbon.
+  2. Inspect computed CSS variables for --background, --card, --foreground, --border.
+  3. Reload browser page to verify theme persistence.
+- **Pass Criteria:** Theme variables transition smoothly without flash of unstyled content. Contrast ratio between body text and card surfaces remains >= 4.5:1 in both light (#FBFBFD) and dark (#090E17) modes. Mode persists after page reload via localStorage.
+
+##### [TC-0.2] Universal DataTable Sticky Actions Column Pinning
+- **Category:** UX & A11y | **Severity:** High | **Persona:** Operations Specialist | **Story:** `US-0.2`
+- **Preconditions:** Viewport width set to 1024px; dataset contains 12+ columns.
+- **Execution Steps:**
+  1. Scroll data table horizontally to the far right edge.
+  2. Observe the pinned rightmost 'Actions' (⋯) column.
+  3. Click actions trigger button to open popup menu.
+- **Pass Criteria:** Actions column stays pinned at exactly 48px width with semi-transparent border shadow (z-index: 20). Action dropdown menu opens without clipping outside the scroll viewport.
+
+##### [TC-0.3] Windowed Pagination Numeric Window Bounds
+- **Category:** Edge Case | **Severity:** High | **Persona:** Operations Specialist | **Story:** `US-0.2`
+- **Preconditions:** Table loaded with 1,340 total rows (134 pages at 10 rows/page).
+- **Execution Steps:**
+  1. Navigate from page 1 to page 5.
+  2. Jump directly to page 134 via pager.
+- **Pass Criteria:** Pager displays windowed format '1 … 4 5 6 … 134', completely preventing legacy bug where 134 individual buttons wrapped over 5 lines.
+
+##### [TC-0.4] Destructive Action Confirmation with Mandatory Reason
+- **Category:** Security / RBAC | **Severity:** Critical | **Persona:** Operations Auditor | **Story:** `US-0.3`
+- **Preconditions:** Admin user on tenant management row.
+- **Execution Steps:**
+  1. Click 'Suspend Tenant' button.
+  2. Attempt to click 'Confirm Suspend' immediately.
+  3. Select reason from dropdown, enter reason notes, and click 'Confirm'.
+- **Pass Criteria:** Confirm button remains strictly disabled until a reason code is selected. Modal traps keyboard focus (Tab, Esc). Once confirmed, dispatches destructive mutation and logs reason in audit log.
+
+##### [TC-0.5] SwitchRow Left-0 Knob Alignment & Keyboard Toggle
+- **Category:** UX & A11y | **Severity:** Medium | **Persona:** Accessibility Auditor | **Story:** `US-0.3`
+- **Preconditions:** Form containing SwitchRow toggle component.
+- **Execution Steps:**
+  1. Tab to the switch using keyboard focus.
+  2. Press Spacebar or Enter to toggle.
+  3. Inspect knob position in OFF vs ON states.
+- **Pass Criteria:** Focus ring appears with 2px offset. When OFF, knob sits at left: 4px (translate-x-1). When ON, knob slides smoothly to left: 24px (translate-x-6). Knob never clips outside pill track boundaries.
+

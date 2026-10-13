@@ -10,7 +10,6 @@
 - **Author:** CICOD Product & Architecture Team
 - **Target Sprint:** Sprint 8 (Week 9)
 - **Target Audience:** VP of Engineering, Lead DevOps / SRE, Head of QA, All Product & Operations Stakeholders
-- **Reference Code:** [crawl_scripts/](file:///c:/Users/CI-STAFF/Documents/CICOD%20TEST/CRM/WorkerCrm/crawl_scripts/), [Prototype_Update_Guide.md](file:///c:/Users/CI-STAFF/Documents/CICOD%20TEST/CRM/WorkerCrm/Prototype_Update_Guide.md)
 - **Last Updated:** 2026-10-13
 
 ---
@@ -21,15 +20,9 @@ The legacy backend Java/Hibernate APIs suffered from leaky abstraction contracts
 Sprint 8 transitions the CICOD CRM into a hardened production release: replacing mock state with a typed **Production REST Client Layer** (`@tanstack/react-query`), executing **5 Comprehensive Playwright E2E Test Suites**, running **Legacy Data Migration & E.164 Sanitization**, conducting **Staging UAT Sign-Off**, and executing a zero-downtime **Production DNS Cutover**.
 
 #### Core Deliverables
-1. **Typed Production API Client (`src/lib/api/`):** React Query / Server Actions layer with full TypeScript contract mapping, decoupled from raw SQL/ORM schemas.
-2. **Transparent Authentication & Interceptors:** JWT session handling, Bearer token injection, automatic 401 refresh token retry, and session expiry redirects.
-3. **Legacy Data Migration & Sanitization:** ETL pipeline migrating 13,355 merchants, normalising malformed telephone numbers to E.164 (`+234...`), and resolving expired dates into proper health states.
-4. **Catalogue Deduplication:** Consolidation of legacy duplicate offers into clean versioned tiers, archiving 25 obsolete offers with 0 subscribers.
-5. **Automated Playwright E2E Test Suites:** 5 full regression suites testing Customer Operations, Catalogue Pricing, Billing & Collections, Sales Conversion, and RBAC / API Keys.
-6. **Operations UAT Sign-Off:** Structured staging review with Customer Operations and Finance leads with zero P1/P2 defects.
-7. **Zero-Downtime Blue/Green Production Cutover:** Load balancer DNS cutover replacing the legacy Angular Metronic application.
-
----
+1. **Production REST Client Layer (`s8-d1`):** Replaces lib/mock/*.ts with typed Axios/fetch clients, token refresh, and caching. *[Tags: API Client, Integration]*
+2. **Automated End-to-End Test Suite (`s8-d2`):** Comprehensive Playwright test suites covering all 5 primary customer and billing journeys. *[Tags: Playwright, E2E Testing]*
+3. **Data Migration & Go-Live Cutover (`s8-d3`):** Sanitized data migration of 13,355 merchants, dunning configurations, and user accounts. *[Tags: Migration, Cutover]*
 
 ### 3. Product Vision & Strategic Objectives
 - **Zero In-Memory Volatility:** Ground all user interactions, filters, and mutations in durable, transactional PostgreSQL/REST persistence.
@@ -47,13 +40,10 @@ Sprint 8 transitions the CICOD CRM into a hardened production release: replacing
 
 ### 5. Scope Boundaries
 
-#### 5.1 In-Scope
-- Implementation of typed API clients in `src/lib/api/` replacing `src/lib/mock/`.
-- JWT token refresh interceptor and global error boundaries.
-- Database ETL migration scripts for 13,355 merchants, telephone normalization, and reference data seeding.
-- Automated Playwright E2E suites for all 5 core user journeys.
-- Staging environment deployment and structured UAT checklist.
-- Blue/Green production DNS cutover.
+#### 5.1 In-Scope Deliverables
+- **Production REST Client Layer:** Replaces lib/mock/*.ts with typed Axios/fetch clients, token refresh, and caching.
+- **Automated End-to-End Test Suite:** Comprehensive Playwright test suites covering all 5 primary customer and billing journeys.
+- **Data Migration & Go-Live Cutover:** Sanitized data migration of 13,355 merchants, dunning configurations, and user accounts.
 
 #### 5.2 Out-of-Scope
 - Complete rewrite of third-party external banking gateways (Paystack/Flutterwave/Stripe APIs are integrated via existing standards).
@@ -130,26 +120,48 @@ flowchart TD
 
 ---
 
-### 9. Detailed User Stories & Acceptance Criteria
+### 9. Detailed User Stories & Sprint Tasks
 
-#### User Story 8.1: Transparent Session Refresh
-*As an Operations Specialist, I want my session to refresh silently in the background while I enter customer notes, so that my work is never interrupted by random login prompts.*
-- **AC-8.1.1:** Expired access token triggers automated refresh token call in `< 200ms`.
-- **AC-8.1.2:** Active form state and typed text remain intact without page reload.
+#### US-8.1 (Deliverable: Production REST Client Layer): Typed Production REST API Client Integration
+*As a Lead Fullstack Architect, I want a typed production REST API client layer replacing mock memory stores with real v2 backend calls so that the Next.js application executes authenticated live operations against CICOD's cloud APIs.*
 
-#### User Story 8.2: Automated Regression Protection
-*As a Lead Engineer, I want the full Playwright suite to run on every pull request, so that regressions in billing or customer search are caught before reaching production.*
-- **AC-8.2.1:** All 5 core journey test suites run headlessly in CI pipeline.
-- **AC-8.2.2:** Pull request is blocked from merging if any test step fails.
+- **Acceptance Criteria**:
+  - Replaces mock stores with typed Axios/fetch clients with automatic JWT refresh.
+  - Global React Query caching and invalidation strategies for responsive UI.
+  - Global Error Boundary and toast telemetry for 4xx/5xx network errors.
 
-#### User Story 8.3: Zero-Downtime DNS Cutover
-*As a DevOps Architect, I want to route traffic to the new CRM cluster using a blue/green cutover, so that active customer onboarding and transactions suffer zero downtime.*
-- **AC-8.3.1:** Load balancer switches traffic instantly upon health check validation.
-- **AC-8.3.2:** Legacy Angular application traffic drops to 0 without HTTP 502/504 errors.
+- **Outlined Sprint Tasks**:
+  - [ ] `s8-1` (FRONTEND · XL): **Implement typed API client layer (lib/api/*.ts)** - *Replace in-memory stores with React Query / server actions handling 401s.*
+  - [ ] `s8-2` (FRONTEND · M): **Add global Error Boundaries & toast failure telemetry** - *Ensure graceful degradation and contextual error alerts across all routes.*
+  - [ ] `s8-7` (FRONTEND · M): **Token refresh rotation interceptor with automatic login redirect** - *Handle expired JWT access tokens seamlessly via refresh cookie exchange.*
 
----
+#### US-8.2 (Deliverable: Automated End-to-End Test Suite): Comprehensive Playwright E2E Regression Testing
+*As a QA Automation Engineer, I want a comprehensive Playwright end-to-end regression test suite covering all critical customer and billing flows so that we guarantee zero broken workflows across deployments and releases.*
 
-### 10. Technical Architecture & Data Models
+- **Acceptance Criteria**:
+  - Covers 5 core journeys: Customer Search, Plan Creation, Offline Payment, Lead Conversion, Key Gen.
+  - Executes in headless CI pipeline on every pull request.
+  - Zero flaky tests with automated retry and video artifact capture.
+
+- **Outlined Sprint Tasks**:
+  - [ ] `s8-3` (QA · XL): **Automate Playwright E2E regression tests in CI** - *Execute full suite: customer search, plan creation, offline payment, key generation.*
+  - [ ] `s8-5` (QA · L): **Staging User Acceptance Testing (UAT) with Ops team** - *Structured walkthrough with Adeola and customer operations staff.*
+  - [ ] `s8-8` (QA · M): **Cross-browser regression testing on Chrome, Firefox, Safari, Edge** - *Verify pixel consistency and zero script errors across top browser engines.*
+
+#### US-8.3 (Deliverable: Data Migration & Go-Live Cutover): Sanitized Merchant Data Migration & Zero-Downtime DNS Cutover
+*As a DevOps & Infrastructure Lead, I want sanitized data migration scripts and a zero-downtime DNS cutover plan from legacy Angular to Next.js so that all 13,355 merchants and active billing subscriptions transfer seamlessly to the new CRM.*
+
+- **Acceptance Criteria**:
+  - Migrates and sanitizes 13,355 merchants, plans, users, and dunning policies.
+  - Dry-run validation checks data integrity and foreign key constraints.
+  - DNS cutover with rollback strategy executed during scheduled low-traffic window.
+
+- **Outlined Sprint Tasks**:
+  - [ ] `s8-4` (BACKEND · XL): **Execute legacy data cleanup & migration scripts** - *Normalize phone numbers to +234, reconcile failed payments, deduplicate plans.*
+  - [ ] `s8-6` (BACKEND · M): **DNS switchover & legacy CRM deprecation** - *Route internal.cicod.com/crm to the new Next.js production build.*
+  - [ ] `s8-9` (BACKEND · M): **Production telemetry, APM monitoring, and health check alerts** - *Real-time error tracking with Datadog/Sentry and latency alerting thresholds.*
+
+### 10. Technical Architecture, Data Models & API Contracts
 
 #### CI/CD & Deployment Architecture
 ```
@@ -171,6 +183,16 @@ Production CI/CD Pipeline:
 
 ---
 
+#### REST API Contracts
+
+| Method | Endpoint | Functional Contract & Payload Expectation |
+|---|---|---|
+| `GET` | `/api/v2/health` | Production health check for database, cache, and message broker. |
+| `GET` | `/api/v2/auth/session` | Validates active JWT token and returns staff permissions map. |
+
+
+---
+
 ### 11. Edge Cases & Error Handling Strategies
 - **Database Connection Pool Exhaustion:** Automatic connection retry with exponential backoff and circuit breaker to prevent cascading failures.
 - **Malformed Legacy Telephone Numbers:** Regex validator routes invalid numbers that cannot be salvaged into an exception review table.
@@ -186,7 +208,7 @@ Production CI/CD Pipeline:
 
 ---
 
-### 13. Release Plan, Milestones & Rollout Strategy
+### 13. Release Plan, Milestones & Definition of Done (DoD)
 - **Milestone 8.1 (Days 1–3):** Implement typed REST client layer and JWT refresh token interceptor.
 - **Milestone 8.2 (Days 4–5):** Run database migration scripts, telephone sanitization, and reference data seeding.
 - **Milestone 8.3 (Days 6–8):** Execute Playwright automated test suites across all 5 core journeys in CI.
@@ -194,9 +216,75 @@ Production CI/CD Pipeline:
 
 ---
 
-### 14. Open Questions, Risks & Dependencies
-- **Risk:** Unexpected schema differences in legacy MySQL database dumps.
-  - *Mitigation:* Execute dry-run migration scripts on a staging replica 1 week prior to final cutover.
-- **Dependency:** Backend team must deploy all v2 REST endpoints to staging environment prior to Sprint 8 Day 1.
-- **Open Question:** Should legacy Angular Metronic application remain accessible as a read-only fallback?
-  - *Resolution:* Yes, preserve read-only legacy access at `legacy-crm.cicod.com` for 30 days post-cutover before decommissioning.
+#### Definition of Done (DoD)
+- [ ] 100% of Playwright end-to-end tests pass cleanly on CI/CD pipeline.
+- [ ] Customer omni-search responds within < 200ms on 13,355 merchant database.
+- [ ] Zero unhandled runtime exceptions or console errors across all 25 pages.
+
+---
+
+### 14. Architectural Risks, Mitigations & Dependencies
+
+#### Key Architectural Risks & Mitigations
+- **Risk & Mitigation:** Unexpected legacy data anomalies during live migration.
+- **Risk & Mitigation:** Network latency between front-end hosting and legacy database cluster.
+
+#### External & Internal Dependencies
+- Database schema migrations and tenant isolation verified prior to deployment.
+- Google Fonts and Lucide icon assets bundled locally without unauthenticated CDN lock-in.
+
+---
+
+### 15. Open Questions, Decisions & Next Steps
+
+#### Open Architectural Questions & Decisions
+- **Question:** What is the rollback procedure if production migration encounters critical failures?
+  - *Decision / Recommendation:* Automated Blue-Green deployment with instant DNS switchback and point-in-time database snapshot restore.
+- **Question:** What latency threshold triggers an automatic canary rollback?
+  - *Decision / Recommendation:* p95 API latency > 500ms or 5xx error rate > 0.5% over a 5-minute rolling window.
+
+#### Next Sprint Handover & Follow-ups
+- Production deployment sign-off with operations, security audit review, and executive stakeholder demo.
+- Hand over platform maintenance and telemetry monitoring dashboards to SRE team.
+
+### 16. Test Cases, Use Cases & QA Acceptance Scenarios
+
+| Test ID | Category | Severity | Persona | Title | Expected Outcome |
+|---|---|---|---|---|---|
+| `TC-8.1` | Performance & Scale | **Critical** | Performance Engineer | End-to-End API Latency & p95 Benchmark | p95 latency remains <= 180ms; 0 database connection pool timeouts; error rate < 0.05%. |
+| `TC-8.2` | Happy Path | **Critical** | Release Manager / SRE | Zero-Downtime Blue-Green Deployment Rollout | Active customer websocket sessions and billing API calls experience zero dropped connections during cutover. System telemetry indicates 100% traffic shift in < 5 seconds. |
+| `TC-8.3` | Edge Case | **Critical** | Site Reliability Engineer | Automated Canary Rollback on Elevated Error Rate | Telemetry monitoring triggers alert within 60 seconds; automated rollback script resets load balancer routing to stable version without human intervention. |
+| `TC-8.4` | UX & A11y | **High** | Lead QA Engineer | Cross-Browser Regression: Chrome, Firefox, Safari & Edge | 100% test passes across all 3 browsers; 0 CSS grid alignment regressions; 0 font rendering shifts between Windows and macOS. |
+
+#### Detailed Validation Procedures
+
+##### [TC-8.1] End-to-End API Latency & p95 Benchmark
+- **Category:** Performance & Scale | **Severity:** Critical | **Persona:** Performance Engineer | **Story:** `US-8.1`
+- **Preconditions:** Load testing cluster simulating 250 concurrent users browsing customers and invoices.
+- **Execution Steps:**
+  1. Execute 10-minute steady-state load test against /api/v2/customers and /api/v2/invoices.
+- **Pass Criteria:** p95 latency remains <= 180ms; 0 database connection pool timeouts; error rate < 0.05%.
+
+##### [TC-8.2] Zero-Downtime Blue-Green Deployment Rollout
+- **Category:** Happy Path | **Severity:** Critical | **Persona:** Release Manager / SRE | **Story:** `US-8.3`
+- **Preconditions:** Staging environment verified with green health check.
+- **Execution Steps:**
+  1. Deploy v2 build to Green cluster.
+  2. Execute automated smoke tests.
+  3. Switch production load balancer traffic from Blue to Green.
+- **Pass Criteria:** Active customer websocket sessions and billing API calls experience zero dropped connections during cutover. System telemetry indicates 100% traffic shift in < 5 seconds.
+
+##### [TC-8.3] Automated Canary Rollback on Elevated Error Rate
+- **Category:** Edge Case | **Severity:** Critical | **Persona:** Site Reliability Engineer | **Story:** `US-8.3`
+- **Preconditions:** Canary deployment serving 5% of production traffic.
+- **Execution Steps:**
+  1. Inject artificial 5xx error rate (> 1%) on canary target.
+- **Pass Criteria:** Telemetry monitoring triggers alert within 60 seconds; automated rollback script resets load balancer routing to stable version without human intervention.
+
+##### [TC-8.4] Cross-Browser Regression: Chrome, Firefox, Safari & Edge
+- **Category:** UX & A11y | **Severity:** High | **Persona:** Lead QA Engineer | **Story:** `US-8.2`
+- **Preconditions:** Automated Playwright matrix testing on desktop viewports.
+- **Execution Steps:**
+  1. Run end-to-end regression across Chromium, WebKit, and Firefox.
+- **Pass Criteria:** 100% test passes across all 3 browsers; 0 CSS grid alignment regressions; 0 font rendering shifts between Windows and macOS.
+

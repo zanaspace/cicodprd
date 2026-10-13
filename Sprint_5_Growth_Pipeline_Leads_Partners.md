@@ -10,7 +10,6 @@
 - **Author:** CICOD Product & Architecture Team
 - **Target Sprint:** Sprint 5 (Week 6)
 - **Target Audience:** Sales Leads, Account Executives, Partner Channel Managers, Frontend & Backend Engineers
-- **Reference Code:** [leads/page.tsx](file:///c:/Users/CI-STAFF/Documents/CICOD%20TEST/Cicod%20CRM/src/app/crm/growth/leads/page.tsx), [partners/page.tsx](file:///c:/Users/CI-STAFF/Documents/CICOD%20TEST/Cicod%20CRM/src/app/crm/growth/partners/page.tsx), [commission/page.tsx](file:///c:/Users/CI-STAFF/Documents/CICOD%20TEST/Cicod%20CRM/src/app/crm/growth/commission/page.tsx)
 - **Last Updated:** 2026-10-13
 
 ---
@@ -21,14 +20,10 @@ The legacy `/crm/lead` endpoint threw API error 400 and failed to render, while 
 Sprint 5 establishes a high-velocity acquisition suite: an interactive **Leads Pipeline** (with both Table and visual Kanban board views), a frictionless **Convert to Customer** workflow, a dedicated **Partner KYC Verification Queue**, and a **Commission Configuration Engine** featuring real-time worked mathematical examples.
 
 #### Core Deliverables
-1. **Interactive Dual-View Leads Pipeline:** Toggle effortlessly between high-density data tables and interactive drag-and-drop Kanban boards across 5 stages (`New` → `Qualified` → `Demo` → `Proposal` → `Won`/`Lost`).
-2. **Actionable Lead Segments:** Segment tabs for *All Open*, *Unassigned Inbound*, *My Leads*, *Follow-up Due*, *Won*, and *Lost*.
-3. **Streamlined Quick-Create Drawer:** High-conversion 6-field capture drawer replacing the legacy 17-field roadblock.
-4. **One-Click "Convert to Customer":** Deep integration that pre-fills the 4-step onboarding wizard and establishes persistent bidirectional links between deal and tenant.
-5. **Partner Verification & KYC Desk:** Verification workflow for Independent Commercial Entities (ICEs), Business Partners, and Delivery Partners.
-6. **Transparent Commission Engine:** Clear configuration cards with explicit percentage/fixed units and real-world worked calculation examples.
-
----
+1. **Interactive Leads Pipeline & Board (`s5-d1`):** Dual table and Kanban board by stage (New → Qualified → Demo → Proposal → Won/Lost). *[Tags: Leads, Kanban, Pipeline]*
+2. **One-Click 'Convert to Customer' Workflow (`s5-d2`):** Converts qualified leads into onboarded merchant tenants with prefilled wizard. *[Tags: Conversion, Workflow, Wizard]*
+3. **Partners Management & Verification Queue (`s5-d3`):** Manage ICEs, business partners, and delivery affiliates with dedicated verification review. *[Tags: Partners, Affiliates, Verification]*
+4. **Commission Plans with Worked Examples (`s5-d4`):** Transparent percentage/fixed rules with concrete payout calculations. *[Tags: Commissions, Payouts, Formulas]*
 
 ### 3. Product Vision & Strategic Objectives
 - **Zero Lead Leakage:** Ensure every inbound web signup is captured, routed, and triaged within 15 minutes of submission.
@@ -46,13 +41,11 @@ Sprint 5 establishes a high-velocity acquisition suite: an interactive **Leads P
 
 ### 5. Scope Boundaries
 
-#### 5.1 In-Scope
-- Dual Table / Kanban board interface for lead pipeline (`/crm/growth/leads`).
-- Drag-and-drop stage updates with mandatory loss-reason prompt on drop to `Lost`.
-- Quick-create lead drawer with automatic sales rep round-robin assignment.
-- Deep integration between Lead conversion and Customer Onboarding wizard.
-- Partner directory and KYC verification queue (`/crm/growth/partners`).
-- Multi-tier commission plan management with worked calculation examples (`/crm/growth/commission`).
+#### 5.1 In-Scope Deliverables
+- **Interactive Leads Pipeline & Board:** Dual table and Kanban board by stage (New → Qualified → Demo → Proposal → Won/Lost).
+- **One-Click 'Convert to Customer' Workflow:** Converts qualified leads into onboarded merchant tenants with prefilled wizard.
+- **Partners Management & Verification Queue:** Manage ICEs, business partners, and delivery affiliates with dedicated verification review.
+- **Commission Plans with Worked Examples:** Transparent percentage/fixed rules with concrete payout calculations.
 
 #### 5.2 Out-of-Scope
 - Complex CPQ (Configure, Price, Quote) legal document generation.
@@ -127,25 +120,61 @@ flowchart TD
 
 ---
 
-### 9. Detailed User Stories & Acceptance Criteria
+### 9. Detailed User Stories & Sprint Tasks
 
-#### User Story 5.1: Pipeline Kanban Velocity
-*As a Sales Representative, I want to drag deals across stages and immediately see total stage values, so that I can prioritize my closing efforts for the week.*
-- **AC-5.1.1:** Dragging a card from "Qualified" to "Demo" updates the card's column and recalculates column aggregate values immediately.
-- **AC-5.1.2:** Dropping a card onto "Lost" requires selecting a loss reason before completing the move.
+#### US-5.1 (Deliverable: Interactive Leads Pipeline & Board): Visual Drag-and-Drop Leads Kanban Pipeline
+*As a Sales Representative, I want an interactive Kanban pipeline board with lead cards organized by stage from New to Won/Lost so that I can visually prioritize my sales pipeline and drag deals forward as demos progress.*
 
-#### User Story 5.2: Streamlined Lead Conversion
-*As an Account Executive, I want to convert a closed deal into an active customer without re-entering their profile data, so that onboarding is instant and error-free.*
-- **AC-5.2.1:** Clicking "Convert to Customer" pre-populates all company and contact fields in the onboarding wizard.
-- **AC-5.2.2:** Completing onboarding links the new customer tenant to the original lead record.
+- **Acceptance Criteria**:
+  - Stages: New, Qualified, Demo Scheduled, Proposal Sent, Won, Lost.
+  - Drag-and-drop moves cards between stages and prompts for lost reasons.
+  - Lead card displays contact name, deal value, days in stage, and last activity.
 
-#### User Story 5.3: Transparent Commission Setup
-*As a Partner Channel Manager, I want commission rules to display worked calculation examples, so that affiliate agreements have zero arithmetic ambiguity.*
-- **AC-5.3.1:** Entering a 5% commission rate immediately renders an example showing payout on standard subscription tiers.
+- **Outlined Sprint Tasks**:
+  - [ ] `s5-1` (FRONTEND · M): **Build Leads directory with Unassigned sign-up segment** - *Surface inbound website leads needing immediate sales rep allocation.*
+  - [ ] `s5-2` (FRONTEND · L): **Build interactive Drag-and-Drop Kanban pipeline board** - *Allow dragging lead cards between stages with quick update modal.*
+  - [ ] `s5-6` (FRONTEND · S): **Lead activity log and qualification note modal** - *Capture call notes, next steps, and estimated budget directly on lead record.*
 
----
+#### US-5.2 (Deliverable: One-Click 'Convert to Customer' Workflow): Seamless Won Deal to Tenant Conversion
+*As a Sales Account Executive, I want a one-click Convert to Customer workflow that transfers lead details directly into the tenant onboarding wizard so that I can close deals and activate merchant accounts without manual copy-pasting.*
 
-### 10. Technical Architecture & Data Models
+- **Acceptance Criteria**:
+  - Clicking Convert transfers company, contact email, and plan preference.
+  - Automatically marks the parent lead as 'Won' upon successful provisioning.
+  - Creates initial billing invoice based on negotiated commercial terms.
+
+- **Outlined Sprint Tasks**:
+  - [ ] `s5-3` (FRONTEND · M): **Implement 'Convert to Customer' action** - *Prefill New Customer wizard and link newly generated tenant to Won lead.*
+  - [ ] `s5-7` (BACKEND · S): **Stage update API with mandatory Lost reason capture** - *Validate that marking a lead as Lost requires a drop-down categorization and notes.*
+  - [ ] `s5-8` (QA · S): **E2E conversion validation from web sign-up to billable customer** - *Verify seamless data flow from inbound lead to active Customer 360 profile.*
+
+#### US-5.3 (Deliverable: Partners Management & Verification Queue): Partner Verification & Channel Network Review
+*As a Channel Partnerships Director, I want a dedicated Partner directory and verification queue to review affiliate applications and documents so that we can onboard verified ICE affiliates and resellers while preventing fraudulent partner signups.*
+
+- **Acceptance Criteria**:
+  - Review queue displays registration documents, business registration, and bank details.
+  - Actions: Approve, Request Additional Documents, or Reject with comment.
+  - Approved partners receive auto-generated referral code and portal login.
+
+- **Outlined Sprint Tasks**:
+  - [ ] `s5-4` (FRONTEND · L): **Build Partners list with Verification Queue** - *Review partner registration KYC documents; approve or reject with reason.*
+  - [ ] `s5-9` (FRONTEND · M): **Partner KYC document previewer and approval workflow** - *Modal showing uploaded certificate and bank details with approve/reject CTAs.*
+  - [ ] `s5-10` (BACKEND · M): **Partner verification REST endpoints with audit logging** - *Endpoint approving partner status and dispatching welcome credentials.*
+
+#### US-5.4 (Deliverable: Commission Plans with Worked Examples): Transparent Partner Commission Engine
+*As a Partner Affiliate (ICE), I want transparent commission plans displaying percentage/fixed rules with concrete worked payout calculations so that I can understand exactly how much I earn on merchant license referrals and renewals.*
+
+- **Acceptance Criteria**:
+  - Displays formula breakdown with worked numerical examples.
+  - Supports recurring revenue share vs one-time bounty rules.
+  - Monthly payout statements summarize eligible vs pending commission balances.
+
+- **Outlined Sprint Tasks**:
+  - [ ] `s5-5` (FRONTEND · M): **Build Commission Plans card view** - *Display formula breakdown with worked examples (e.g. ₦8,000 paid = ₦240 earned).*
+  - [ ] `s5-11` (BACKEND · M): **Monthly partner commission calculation ledger and payout export** - *Calculate monthly eligible payout balances and generate finance settlement CSV.*
+  - [ ] `s5-12` (QA · S): **Commission calculation automated unit test suite** - *Test edge cases: partial payments, refunds, and tier-based percentage scaling.*
+
+### 10. Technical Architecture, Data Models & API Contracts
 
 #### Schemas
 ```typescript
@@ -208,6 +237,18 @@ export interface CommissionPlanDTO {
 
 ---
 
+#### REST API Contracts
+
+| Method | Endpoint | Functional Contract & Payload Expectation |
+|---|---|---|
+| `GET` | `/api/v2/growth/leads` | Paginated leads with stage, assigned owner, and source channel. |
+| `PATCH` | `/api/v2/growth/leads/{id}/stage` | Updates pipeline stage; captures reason if marked Lost. |
+| `POST` | `/api/v2/growth/leads/{id}/convert` | Transforms lead into customer account, returning new customer ID. |
+| `POST` | `/api/v2/growth/partners/verify` | Approves or rejects partner application with staff comments. |
+
+
+---
+
 ### 11. Edge Cases & Error Handling Strategies
 - **Network Failure During Kanban Drag:** Card snaps back to original column; a toast notification informs the user of the sync error.
 - **Converting Already-Converted Lead:** If two reps attempt to convert simultaneously, backend concurrency check rejects the second with a link to the existing customer profile.
@@ -223,7 +264,7 @@ export interface CommissionPlanDTO {
 
 ---
 
-### 13. Release Plan, Milestones & Rollout Strategy
+### 13. Release Plan, Milestones & Definition of Done (DoD)
 - **Milestone 5.1 (Days 1–3):** Dual Table / Kanban board UI with drag-and-drop and stage column totals.
 - **Milestone 5.2 (Days 4–5):** Quick-create lead drawer and segment filters with live counts.
 - **Milestone 5.3 (Days 6–7):** Lead-to-Customer conversion workflow and activity log linking.
@@ -231,9 +272,76 @@ export interface CommissionPlanDTO {
 
 ---
 
-### 14. Open Questions, Risks & Dependencies
-- **Risk:** Existing sales reps accustomed to external spreadsheets may bypass entering leads into the CRM.
-  - *Mitigation:* Connect inbound website signup webhooks directly to the CRM Lead creation endpoint.
-- **Dependency:** Customer Onboarding Wizard from Sprint 3 must be available to accept prefilled query params.
-- **Open Question:** Should commission tiers support multi-year recurring payouts or first-year only?
-  - *Resolution:* Sprint 5 supports ongoing recurring commissions; contract expiration dates can be set on individual partner agreements.
+#### Definition of Done (DoD)
+- [ ] Dragging a lead to 'Lost' prompts for mandatory loss reason.
+- [ ] Converting a lead navigates directly to Customer 360 with preserved data.
+- [ ] Commission card displays clear math examples preventing unit misunderstandings.
+
+---
+
+### 14. Architectural Risks, Mitigations & Dependencies
+
+#### Key Architectural Risks & Mitigations
+- **Risk & Mitigation:** Lead conversion creating duplicate tenant profiles.
+- **Risk & Mitigation:** Commission rate adjustments affecting historical unfinalized payouts.
+
+#### External & Internal Dependencies
+- Database schema migrations and tenant isolation verified prior to deployment.
+- Google Fonts and Lucide icon assets bundled locally without unauthenticated CDN lock-in.
+
+---
+
+### 15. Open Questions, Decisions & Next Steps
+
+#### Open Architectural Questions & Decisions
+- **Question:** How are partner commission splits calculated on contract renewals?
+  - *Decision / Recommendation:* Configurable per partner agreement (default 10% first year, 5% recurring renewals).
+- **Question:** Can leads be imported in bulk via CSV or Excel sheets?
+  - *Decision / Recommendation:* Batch import API endpoint accepts up to 5,000 rows with asynchronous validation and row-level error reporting.
+
+#### Next Sprint Handover & Follow-ups
+- Verify acceptance criteria and automated tests are green before advancing to Sprint 6 (Messaging, Campaigns & Trigger Engine).
+- Conduct sprint retrospective and synchronize status tokens in roadmap database.
+
+### 16. Test Cases, Use Cases & QA Acceptance Scenarios
+
+| Test ID | Category | Severity | Persona | Title | Expected Outcome |
+|---|---|---|---|---|---|
+| `TC-5.1` | Happy Path | **Critical** | Sales Operations Lead | Kanban Pipeline Drag-and-Drop Stage Transition | Card animates smoothly into new column. Pipeline header metrics update instantly: Discovery total decreases by ₦12M; Proposal Sent total increases by ₦12M. Audit log records stage transition. |
+| `TC-5.2` | Edge Case | **High** | Inside Sales Representative | Lead Conversion to Active Customer & Duplicate Check | If email matches existing tenant, system prompts: 'Matching customer record found (#1092). Merge or link lead instead of creating duplicate?'. |
+| `TC-5.3` | Happy Path | **High** | Partner Program Manager | Partner Commission Tier Tiering & Payout Ledger | Ledger generates pending commission line item of ₦300,000 (15%) tied to invoice ID, with payout status set to 'Pending Settlement'. |
+| `TC-5.4` | Performance & Scale | **Medium** | Marketing Operations | Bulk Lead Import CSV Validation with Row-Level Error Highlighting | 1,497 valid leads flagged green; 3 invalid rows highlighted with exact cell error ('Invalid E.164 phone format') with option to fix inline or skip. |
+
+#### Detailed Validation Procedures
+
+##### [TC-5.1] Kanban Pipeline Drag-and-Drop Stage Transition
+- **Category:** Happy Path | **Severity:** Critical | **Persona:** Sales Operations Lead | **Story:** `US-5.1`
+- **Preconditions:** Opportunity 'Apex Bank ERP' in stage 'Discovery' (₦12,000,000).
+- **Execution Steps:**
+  1. Drag opportunity card from 'Discovery' column to 'Proposal Sent' column.
+- **Pass Criteria:** Card animates smoothly into new column. Pipeline header metrics update instantly: Discovery total decreases by ₦12M; Proposal Sent total increases by ₦12M. Audit log records stage transition.
+
+##### [TC-5.2] Lead Conversion to Active Customer & Duplicate Check
+- **Category:** Edge Case | **Severity:** High | **Persona:** Inside Sales Representative | **Story:** `US-5.2`
+- **Preconditions:** Lead with company name 'Sterling Oil' and email finance@sterling.ng.
+- **Execution Steps:**
+  1. Click 'Convert to Customer'.
+  2. Verify duplicate check against existing customer database.
+- **Pass Criteria:** If email matches existing tenant, system prompts: 'Matching customer record found (#1092). Merge or link lead instead of creating duplicate?'.
+
+##### [TC-5.3] Partner Commission Tier Tiering & Payout Ledger
+- **Category:** Happy Path | **Severity:** High | **Persona:** Partner Program Manager | **Story:** `US-5.4`
+- **Preconditions:** Partner 'AfriTech Reseller' has Gold tier (15% commission rate).
+- **Execution Steps:**
+  1. Customer referred by AfriTech completes ₦2,000,000 payment.
+  2. Check Partner Commission ledger.
+- **Pass Criteria:** Ledger generates pending commission line item of ₦300,000 (15%) tied to invoice ID, with payout status set to 'Pending Settlement'.
+
+##### [TC-5.4] Bulk Lead Import CSV Validation with Row-Level Error Highlighting
+- **Category:** Performance & Scale | **Severity:** Medium | **Persona:** Marketing Operations | **Story:** `US-5.3`
+- **Preconditions:** CSV file containing 1,500 leads with 3 invalid phone numbers.
+- **Execution Steps:**
+  1. Upload leads.csv.
+  2. Observe import validation preview table.
+- **Pass Criteria:** 1,497 valid leads flagged green; 3 invalid rows highlighted with exact cell error ('Invalid E.164 phone format') with option to fix inline or skip.
+

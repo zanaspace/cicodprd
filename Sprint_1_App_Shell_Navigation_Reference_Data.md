@@ -10,7 +10,6 @@
 - **Author:** CICOD Product & Architecture Team
 - **Target Sprint:** Sprint 1 (Week 2)
 - **Target Audience:** Frontend Engineers, Backend Architects, Operations Leads, System Administrators
-- **Reference Code:** [nav.ts](file:///c:/Users/CI-STAFF/Documents/CICOD%20TEST/Cicod%20CRM/src/lib/nav.ts), [ReferenceView.tsx](file:///c:/Users/CI-STAFF/Documents/CICOD%20TEST/Cicod%20CRM/src/app/crm/settings/components/ReferenceView.tsx)
 - **Last Updated:** 2026-10-13
 
 ---
@@ -21,13 +20,9 @@ The legacy CRM navigation contained 8 arbitrary top-level sections, including to
 Sprint 1 delivers a clean two-level application shell with a collapsible sidebar (260px → 72px), route-computed dynamic breadcrumbs, a user favorites bar, and a centralized Reference Data hub under Settings.
 
 #### Core Deliverables
-1. **Collapsible 2-Level Sidebar:** Grouped by high-level job functions: Daily Operations, Growth, Campaign Studio, Administration.
-2. **Dynamic Header & Breadcrumb Engine:** Route-derived breadcrumb hierarchy with entity names and quick search.
-3. **Favorites Manager:** Star any page or filtered view into the sidebar with `localStorage` persistence.
-4. **Unified Reference Data Hub (`/crm/settings/reference`):** Tabbed management for Currencies, Operating Locations, Sectors & Types, and Payment Channels.
-5. **Catalogue Setup Relocation:** Relocate Service Types, Product Types, and Bundle Groups under Settings.
-
----
+1. **Dual/Collapsible App Sidebar (`s1-d1`):** Grouped by job: Daily Operations, Growth, Administration. Collapses from 260px to 72px. *[Tags: Sidebar, IA, Navigation]*
+2. **Dynamic Breadcrumbs & Header (`s1-d2`):** Path-computed navigation with active entity titles and Quick Search. *[Tags: Header, Breadcrumbs, Favorites]*
+3. **Unified Reference Data Module (`s1-d3`):** Single screen for Currencies (NGN, USD, GBP), Operating Locations (Country/State/LGA), and Sectors. *[Tags: Reference Data, Currencies, Locations]*
 
 ### 3. Product Vision & Strategic Objectives
 - **Information Architecture Discipline:** Enforce a strict "two levels at most" rule; reference lists move to Settings.
@@ -45,12 +40,10 @@ Sprint 1 delivers a clean two-level application shell with a collapsible sidebar
 
 ### 5. Scope Boundaries
 
-#### 5.1 In-Scope
-- Collapsible sidebar rail (260px expanded, 72px collapsed).
-- Dynamic breadcrumb generation matching route prefixes in `src/lib/nav.ts`.
-- User Favorites manager supporting starring, renaming, reordering, and deleting.
-- Reference Data hub with Currencies, Locations (Country/State/LGA), Sectors/Types, and Payment Channels.
-- Relocation of Service Types, Product Types, and Bundle Groups under Settings.
+#### 5.1 In-Scope Deliverables
+- **Dual/Collapsible App Sidebar:** Grouped by job: Daily Operations, Growth, Administration. Collapses from 260px to 72px.
+- **Dynamic Breadcrumbs & Header:** Path-computed navigation with active entity titles and Quick Search.
+- **Unified Reference Data Module:** Single screen for Currencies (NGN, USD, GBP), Operating Locations (Country/State/LGA), and Sectors.
 
 #### 5.2 Out-of-Scope
 - External multi-tenant organization switching (single-org CRM focus).
@@ -114,29 +107,48 @@ flowchart TD
 
 ---
 
-### 9. Detailed User Stories & Acceptance Criteria
+### 9. Detailed User Stories & Sprint Tasks
 
-#### User Story 1.1: Dynamic Contextual Breadcrumbs
-*As a support agent, I want the breadcrumb to reflect my exact location so that I never lose customer context when troubleshooting.*
-- **Given** an agent opens `/crm/customer-mgt/customers/23488`,
-- **When** the page renders,
-- **Then** the breadcrumb reads `Home > Customer Management > Customers > crmdemo (#23488)`.
+#### US-1.1 (Deliverable: Dual/Collapsible App Sidebar): Collapsible App Sidebar Navigation
+*As a CRM Daily User, I want a clean 2-level collapsible sidebar navigation grouped by Daily Operations, Growth, and Administration so that I can switch modules quickly without getting lost in legacy 8-tier nested submenus.*
 
-#### User Story 1.2: Guarded Currency Deactivation
-*As a commercial lead, I want active billing currencies protected so that live subscriptions don't fail due to accidental reference changes.*
-- **Given** `USD` is assigned to 6 live product offers,
-- **When** an administrator attempts to toggle USD OFF in Reference Data,
-- **Then** the toggle is blocked and a warning alert specifies the 6 active plans preventing deactivation.
+- **Acceptance Criteria**:
+  - Sidebar collapses from 260px expanded to 72px icon rail with active badge tooltips.
+  - Active group and leaf routes automatically highlight based on URL pathname.
+  - Favorites section pins frequently accessed pages for 1-click access.
 
-#### User Story 1.3: Personalized Sidebar Favorites
-*As a collections officer, I want to bookmark the 'Ready to Suspend' queue so that I can access my daily triage list with one click.*
-- **Given** an officer filters Collections to `Ready to Suspend`,
-- **When** they click the header star icon and save,
-- **Then** "Collections · Ready to Suspend" appears in the sidebar Favorites and opens the exact filtered view upon click.
+- **Outlined Sprint Tasks**:
+  - [x] `s1-2` (FRONTEND · M): **Build Favorites manager with localStorage persistence** - *Allow starring any filtered list view or quick action into the sidebar.*
+  - [x] `s1-6` (FRONTEND · M): **Implement collapsible sidebar rail with smooth width transition** - *Animated collapse/expand with responsive 72px/260px margins.*
+  - [x] `s1-7` (QA · S): **Audit mobile drawer behavior and viewport responsiveness** - *Verify mobile sidebar drawer overlay, focus traps, and touch targets.*
 
----
+#### US-1.2 (Deliverable: Dynamic Breadcrumbs & Header): Dynamic Breadcrumbs & Contextual Header
+*As a Account Support Agent, I want a path-computed dynamic breadcrumb bar displaying actual customer or plan names instead of static labels so that I always know my exact location within deeply nested customer and catalogue hierarchies.*
 
-### 10. Technical Architecture & Data Models
+- **Acceptance Criteria**:
+  - Breadcrumb dynamically resolves entity names from active route params.
+  - Clicking any parent crumb navigates back with preserved filter state.
+  - Header includes quick theme switcher, favorites star, and Roadmap link.
+
+- **Outlined Sprint Tasks**:
+  - [x] `s1-1` (FRONTEND · M): **Implement dynamic breadcrumbs in Header.tsx** - *Build breadcrumb hierarchy from route matchers instead of hard-coded strings.*
+  - [x] `s1-8` (FRONTEND · S): **Add entity name resolver for customer, plan, and lead IDs** - *Resolve actual company and plan names in breadcrumb trail dynamically.*
+  - [x] `s1-9` (QA · S): **Automated navigation path test suite covering all 25 routes** - *Test active leaf matching and breadcrumb hierarchy across deep paths.*
+
+#### US-1.3 (Deliverable: Unified Reference Data Module): Consolidated Reference Data Workspace
+*As a System Administrator, I want a consolidated Reference Data workspace to configure active currencies, operating locations, and business sectors so that I can curate core platform reference entities in one central hub instead of 8 fragmented legacy pages.*
+
+- **Acceptance Criteria**:
+  - Currencies view allows toggling active trading currencies (NGN, USD, GBP, KES, GHS).
+  - Operating locations tree supports Country → State → LGA drilldown.
+  - Reference data changes propagate immediately to plan editors and merchant forms.
+
+- **Outlined Sprint Tasks**:
+  - [x] `s1-3` (FRONTEND · L): **Consolidate 8 Business Setup pages into ReferenceView** - *Tabbed interface for Currencies, Locations, Business Types, and Payment Channels.*
+  - [x] `s1-4` (FRONTEND · S): **Move Service Types & Product Types under Settings** - *Relocate low-volume catalogue reference data out of primary navigation.*
+  - [ ] `s1-5` (BACKEND · M): **Define Reference Data API Contract** - *Implement endpoints for full list retrieval without legacy 100-record truncation.*
+
+### 10. Technical Architecture, Data Models & API Contracts
 
 #### Navigation Configuration (`src/lib/nav.ts`)
 ```typescript
@@ -158,6 +170,18 @@ export function matchNav(pathname: string): NavMatch | undefined;
 
 ---
 
+#### REST API Contracts
+
+| Method | Endpoint | Functional Contract & Payload Expectation |
+|---|---|---|
+| `GET` | `/api/v2/reference/currencies` | Returns active trading currencies with usage flags. |
+| `GET` | `/api/v2/reference/locations` | Hierarchical Country → State → LGA operational tree. |
+| `GET` | `/api/v2/reference/sectors` | Business sectors with child business types. |
+| `PATCH` | `/api/v2/reference/payment-methods` | Toggles offline method availability and reference requirements. |
+
+
+---
+
 ### 11. Edge Cases & Error Handling Strategies
 - **Deeply Nested Locations:** Lazy-load state and LGA lists on demand to prevent heavy initial payload.
 - **Special Characters in Types:** Sanitize business type inputs to prevent HTML tag injection.
@@ -172,7 +196,7 @@ export function matchNav(pathname: string): NavMatch | undefined;
 
 ---
 
-### 13. Release Plan, Milestones & Rollout Strategy
+### 13. Release Plan, Milestones & Definition of Done (DoD)
 - **Milestone 1.1:** Navigation structure refactor (`nav.ts`) and dynamic breadcrumbs.
 - **Milestone 1.2:** Favorites manager with local storage engine.
 - **Milestone 1.3:** Reference Data hub with Currencies, Locations, and Sectors tabs.
@@ -180,7 +204,81 @@ export function matchNav(pathname: string): NavMatch | undefined;
 
 ---
 
-### 14. Open Questions, Risks & Dependencies
-- **Risk:** Regional differences in location naming (e.g. Nigerian LGAs vs UK Counties).
-  - *Mitigation:* Flexible label column adapting based on parent country.
-- **Dependency:** Reference data must be seeded and verified before customer onboarding forms can use live dropdowns.
+#### Definition of Done (DoD)
+- [ ] Breadcrumb reflects exact path hierarchy on all nested views.
+- [ ] Deactivating a currency in Reference Data immediately removes it from plan editors.
+- [ ] Reference lists load complete records without legacy 100-item cutoff.
+
+---
+
+### 14. Architectural Risks, Mitigations & Dependencies
+
+#### Key Architectural Risks & Mitigations
+- **Risk & Mitigation:** Deleting or switching off a sector that is actively used by existing merchants.
+- **Risk & Mitigation:** Slow location hierarchy queries if regions are deeply nested.
+
+#### External & Internal Dependencies
+- Database schema migrations and tenant isolation verified prior to deployment.
+- Google Fonts and Lucide icon assets bundled locally without unauthenticated CDN lock-in.
+
+---
+
+### 15. Open Questions, Decisions & Next Steps
+
+#### Open Architectural Questions & Decisions
+- **Question:** Should user favorites synchronize to backend database or remain local to browser?
+  - *Decision / Recommendation:* Initial release leverages localStorage for sub-millisecond response; cloud user sync scheduled for v2.1.
+- **Question:** How deep should dynamic breadcrumbs resolve live database entity names?
+  - *Decision / Recommendation:* Maximum 3 levels of dynamic resolution (Module › Section › Entity Name) with local cache fallback.
+
+#### Next Sprint Handover & Follow-ups
+- Verify acceptance criteria and automated tests are green before advancing to Sprint 2 (Commercial Catalogue & Pricing Matrix).
+- Conduct sprint retrospective and synchronize status tokens in roadmap database.
+
+### 16. Test Cases, Use Cases & QA Acceptance Scenarios
+
+| Test ID | Category | Severity | Persona | Title | Expected Outcome |
+|---|---|---|---|---|---|
+| `TC-1.1` | Happy Path | **Critical** | Daily CRM Operator | Two-Level Collapsible Sidebar Responsive Rail | Sidebar width animates smoothly from 260px to 72px. Main content margin adjusts from ml-[260px] to ml-[72px] without layout shift. Floating flyout menu appears on hover with active item highlight. |
+| `TC-1.2` | Happy Path | **High** | Support Agent | Dynamic Route Breadcrumb Entity Name Resolution | Breadcrumb displays 'Home > Customer Management > Customers > Acme Logistics Ltd (#23488)' rather than raw token. Clicking parent crumb returns to customer list with preserved filter state. |
+| `TC-1.3` | Edge Case | **Critical** | System Administrator | Guarded Reference Data Deletion for Active Currencies | System detects activePlanCount > 0, blocks toggle mutation, and displays error toast: 'NGN is used by 14 active plans and cannot be deactivated'. |
+| `TC-1.4` | Happy Path | **Medium** | Daily CRM Operator | User Favorites Starring & LocalStorage Persistence | Favorite is saved to sidebar as 'Customers · Overdue Enterprise'. Clicking it loads the exact filtered dataset with query params intact. State survives browser restart. |
+
+#### Detailed Validation Procedures
+
+##### [TC-1.1] Two-Level Collapsible Sidebar Responsive Rail
+- **Category:** Happy Path | **Severity:** Critical | **Persona:** Daily CRM Operator | **Story:** `US-1.1`
+- **Preconditions:** Desktop viewport (1440px).
+- **Execution Steps:**
+  1. Click sidebar toggle button to collapse.
+  2. Hover over collapsed module icons.
+  3. Click sub-item from flyout.
+- **Pass Criteria:** Sidebar width animates smoothly from 260px to 72px. Main content margin adjusts from ml-[260px] to ml-[72px] without layout shift. Floating flyout menu appears on hover with active item highlight.
+
+##### [TC-1.2] Dynamic Route Breadcrumb Entity Name Resolution
+- **Category:** Happy Path | **Severity:** High | **Persona:** Support Agent | **Story:** `US-1.2`
+- **Preconditions:** Customer record #23488 exists with name 'Acme Logistics Ltd'.
+- **Execution Steps:**
+  1. Navigate to /crm/customers/23488.
+  2. Inspect breadcrumb trail in header.
+  3. Click 'Customers' parent crumb.
+- **Pass Criteria:** Breadcrumb displays 'Home > Customer Management > Customers > Acme Logistics Ltd (#23488)' rather than raw token. Clicking parent crumb returns to customer list with preserved filter state.
+
+##### [TC-1.3] Guarded Reference Data Deletion for Active Currencies
+- **Category:** Edge Case | **Severity:** Critical | **Persona:** System Administrator | **Story:** `US-1.3`
+- **Preconditions:** Currency NGN assigned to 14 active subscription plans.
+- **Execution Steps:**
+  1. Open /crm/settings/reference.
+  2. Click 'Currencies' tab.
+  3. Attempt to toggle OFF currency NGN.
+- **Pass Criteria:** System detects activePlanCount > 0, blocks toggle mutation, and displays error toast: 'NGN is used by 14 active plans and cannot be deactivated'.
+
+##### [TC-1.4] User Favorites Starring & LocalStorage Persistence
+- **Category:** Happy Path | **Severity:** Medium | **Persona:** Daily CRM Operator | **Story:** `US-1.1`
+- **Preconditions:** Customer list filtered by status=overdue&tier=enterprise.
+- **Execution Steps:**
+  1. Click star icon in header.
+  2. Verify sidebar Favorites group.
+  3. Refresh browser page and click the favorite link.
+- **Pass Criteria:** Favorite is saved to sidebar as 'Customers · Overdue Enterprise'. Clicking it loads the exact filtered dataset with query params intact. State survives browser restart.
+

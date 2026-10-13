@@ -10,7 +10,6 @@
 - **Author:** CICOD Product & Architecture Team
 - **Target Sprint:** Sprint 4 (Week 5)
 - **Target Audience:** Finance Directors, Billing Specialists, Collections Officers, Frontend & Backend Engineers
-- **Reference Code:** [billing/page.tsx](file:///c:/Users/CI-STAFF/Documents/CICOD%20TEST/Cicod%20CRM/src/app/crm/billing/page.tsx), [PolicyEditor.tsx](file:///c:/Users/CI-STAFF/Documents/CICOD%20TEST/Cicod%20CRM/src/app/crm/billing/components/PolicyEditor.tsx), [CollectionsView.tsx](file:///c:/Users/CI-STAFF/Documents/CICOD%20TEST/Cicod%20CRM/src/app/crm/billing/components/CollectionsView.tsx)
 - **Last Updated:** 2026-10-13
 
 ---
@@ -21,15 +20,9 @@ In the legacy platform, the subscription payments table marked every transaction
 Sprint 4 delivers an end-to-end financial operations cockpit: a **Billing Overview Dashboard** with reconciled MRR and recovery rates, a **Payments Console** reflecting authentic gateway statuses (`Paid`, `Failed`, `Pending`, `Refunded`) with retry logs, an actionable **Collections Workbench** with an offline reconciliation modal, and a visual **Dunning Policy Timeline Editor**.
 
 #### Core Deliverables
-1. **Executive Billing Dashboard:** High-level cards for MRR, Outstanding Collections, 7-day Payment Failures, and Dunning Recovery Rate.
-2. **True-Status Payments Console:** Real-time transaction statuses, debit retry grouping by order, and slide-out Attempt Detail Drawers.
-3. **Customer Payment Link Dispatcher:** One-click email/SMS payment portal link generation for failed transactions.
-4. **Collections Workbench:** Dedicated triage queues (*All Overdue*, *In Grace Period*, *Ready to Suspend*, *Paused/Disputed*).
-5. **Offline Payment Reconciliation Drawer:** Bank transfer record keeper with mandatory bank reference number, receipt attachment, and instant balance clearing.
-6. **Visual Dunning Policy Builder:** Interactive pre-due (-14d to -1d) and post-due (+1d to +30d) timeline editor with email/SMS preview and auto-suspension triggers.
-7. **Billing Model Coverage Tracker:** Real-time indicator displaying which commercial billing models lack active dunning rules.
-
----
+1. **Billing Overview & Executive Dashboard (`s4-d1`):** Live KPIs: Total MRR, Outstanding Collections, Failed Transactions, Dunning Recovery Rate. *[Tags: FinOps, KPIs, Revenue]*
+2. **Payments Console & Attempt Drawer (`s4-d2`):** True statuses (Paid, Failed, Pending, Refunded), transaction retry grouping, payment link CTA. *[Tags: Payments, Audit, Reconciliation]*
+3. **Collections & Dunning Policy Builder (`s4-d3`):** Queue of overdue accounts, Record Offline Payment modal, and visual reminder timeline. *[Tags: Collections, Dunning, Timeline]*
 
 ### 3. Product Vision & Strategic Objectives
 - **Financial Truth & Integrity:** Eliminate illusory "CONFIRMED" states; ensure every Naira, Dollar, and Pound reflects settled bank or gateway funds.
@@ -47,14 +40,10 @@ Sprint 4 delivers an end-to-end financial operations cockpit: a **Billing Overvi
 
 ### 5. Scope Boundaries
 
-#### 5.1 In-Scope
-- Billing executive dashboard with dynamic drill-down links.
-- Payments table with filters for date, gateway channel, and status (`Paid`, `Failed`, `Pending`, `Refunded`).
-- Gateway attempt drawer displaying raw provider error messages.
-- Collections queue management with "Pause Chasing" workflow.
-- Offline payment modal enforcing bank teller reference.
-- Visual Dunning Timeline Editor for all billing models.
-- Policy coverage audit indicator.
+#### 5.1 In-Scope Deliverables
+- **Billing Overview & Executive Dashboard:** Live KPIs: Total MRR, Outstanding Collections, Failed Transactions, Dunning Recovery Rate.
+- **Payments Console & Attempt Drawer:** True statuses (Paid, Failed, Pending, Refunded), transaction retry grouping, payment link CTA.
+- **Collections & Dunning Policy Builder:** Queue of overdue accounts, Record Offline Payment modal, and visual reminder timeline.
 
 #### 5.2 Out-of-Scope
 - Direct integration with general ledger ERPs (SAP/NetSuite) — targeted for post-v2 release.
@@ -130,26 +119,50 @@ flowchart TD
 
 ---
 
-### 9. Detailed User Stories & Acceptance Criteria
+### 9. Detailed User Stories & Sprint Tasks
 
-#### User Story 4.1: Gateway Failure Inspection
-*As a Billing Specialist, I want to see exactly why a merchant's auto-debit failed, so that I can send them a direct link or advise them to update their card details.*
-- **AC-4.1.1:** Failed transactions display in red with reason chip (e.g., "Card Expired").
-- **AC-4.1.2:** Opening the Attempt Detail Drawer reveals gateway error codes and allows dispatching a payment link.
+#### US-4.1 (Deliverable: Billing Overview & Executive Dashboard): Executive Financial Health & MRR Dashboard
+*As a Chief Financial Officer, I want an executive billing dashboard with true MRR, outstanding receivables, failed payments count, and recovery rates so that leadership can evaluate recurring cash flow and identify collection risks in real time.*
 
-#### User Story 4.2: Bank Transfer Reconciliation
-*As a Collections Officer, I want to record an offline bank transfer with mandatory teller reference, so that the customer's account is restored to good standing immediately.*
-- **AC-4.2.1:** Submitting the offline payment form without a Bank Reference displays an inline validation error.
-- **AC-4.2.2:** On successful submission, the customer's balance updates to 0 and their status clears from "Ready to Suspend".
+- **Acceptance Criteria**:
+  - Displays Total MRR, Outstanding Collections, Failed Transactions, and Dunning Recovery Rate.
+  - Month-over-month trends highlight revenue growth and churn risk.
+  - Visual distribution breakdown by payment channel (Card, Direct Debit, Bank Transfer).
 
-#### User Story 4.3: Visual Dunning Cadence
-*As a Finance Director, I want to configure a 4-step dunning schedule with email and SMS previews, so that customers receive professional reminders without manual outreach.*
-- **AC-4.3.1:** User can add a Step at -3 days (Gentle Reminder) and +7 days (Overdue Warning).
-- **AC-4.3.2:** System validates that every step has at least one communication channel selected.
+- **Outlined Sprint Tasks**:
+  - [ ] `s4-7` (FRONTEND · M): **Build executive Billing Overview KPI cards and revenue charts** - *Display monthly revenue run-rate, failed transactions count, and collection recovery trend.*
+  - [ ] `s4-8` (BACKEND · M): **Implement financial aggregations endpoint for live billing metrics** - *High-performance aggregation query calculating MRR and overdue balances across currencies.*
+  - [ ] `s4-9` (QA · S): **Automated reconciliation test for multi-currency MRR calculation** - *Validate currency rate conversion and zero double-counting on upgraded subscriptions.*
 
----
+#### US-4.2 (Deliverable: Payments Console & Attempt Drawer): Real Payment Transaction Auditing & Retry History
+*As a Billing Operations Specialist, I want a payments ledger displaying true gateway transaction states with expandable retry history drawers so that I can explain payment failures to customers without guessing between gateway errors and bank declines.*
 
-### 10. Technical Architecture & Data Models
+- **Acceptance Criteria**:
+  - True status pills: Paid (green), Failed (red), Pending (amber), Refunded (slate).
+  - Attempt drawer groups all retries under the parent order with error messages.
+  - Generate Payment Link CTA allows manual recovery over email or SMS.
+
+- **Outlined Sprint Tasks**:
+  - [ ] `s4-1` (FRONTEND · L): **Build Payments table with real statuses & attempt drawer** - *Group retries under single orders; display gateway error codes and card info.*
+  - [ ] `s4-10` (FRONTEND · S): **Add payment link generation modal with copyable URL** - *Create one-click recovery link for failed transactions with custom expiry window.*
+  - [ ] `s4-11` (BACKEND · L): **Payment gateway webhook ingestion handler for state updates** - *Asynchronously process payment gateway webhooks for charge success, decline, and chargebacks.*
+
+#### US-4.3 (Deliverable: Collections & Dunning Policy Builder): Automated Dunning Rules & Past-Grace Collections
+*As a Credit Control Manager, I want a past-grace collections queue, offline payment recorder, and visual dunning reminder timeline builder so that we can recover overdue subscriptions through scheduled automated reminders and manual bank reconciliation.*
+
+- **Acceptance Criteria**:
+  - 'Ready to suspend' queue isolates overdue merchants past grace threshold.
+  - Record Offline Payment validates teller reference, clears debt, and logs note.
+  - Dunning Policy editor provides visual day-by-day reminder timeline (SMS/Email).
+
+- **Outlined Sprint Tasks**:
+  - [ ] `s4-2` (FRONTEND · M): **Build Collections workbench with 'Ready to suspend' queue** - *Table of past-grace accounts requiring human suspension decisions.*
+  - [ ] `s4-3` (FRONTEND · M): **Implement 'Record Offline Payment' modal with bank reference** - *Validate required reference, reconcile invoice, and clear overdue status.*
+  - [ ] `s4-4` (FRONTEND · XL): **Build Dunning Policy editor with interactive timeline** - *Drag/configure days before/after due date with SMS/email template bindings.*
+  - [ ] `s4-5` (FRONTEND · S): **Create Dunning Policy coverage indicator** - *Visual strip showing which billing models lack a live chasing policy.*
+  - [ ] `s4-6` (BACKEND · XL): **Implement Automated Dunning Cron & Webhook processor** - *Nightly evaluation of grace periods and message dispatch queue.*
+
+### 10. Technical Architecture, Data Models & API Contracts
 
 #### Payment & Dunning Schemas
 ```typescript
@@ -220,6 +233,18 @@ export interface DunningPolicy {
 
 ---
 
+#### REST API Contracts
+
+| Method | Endpoint | Functional Contract & Payload Expectation |
+|---|---|---|
+| `GET` | `/api/v2/billing/overview` | Returns aggregate MRR, failed transaction counts, and collections total. |
+| `GET` | `/api/v2/billing/payments` | Filtered payments with grouped attempt history and true statuses. |
+| `POST` | `/api/v2/billing/payments/record-offline` | Records manual bank transfer with mandatory teller/transaction ref. |
+| `GET` | `/api/v2/billing/dunning/policies` | Lists policies with assigned billing model coverage map. |
+
+
+---
+
 ### 11. Edge Cases & Error Handling Strategies
 - **Partial Payments:** If a customer transfers `₦50,000` on a `₦100,000` invoice, the system logs a partial payment and keeps remaining balance in Collections.
 - **Simultaneous Webhook & Bank Transfer:** If an automated debit settles while an offline transfer is pending verification, the system flags the invoice for manual review to prevent double collection.
@@ -235,7 +260,7 @@ export interface DunningPolicy {
 
 ---
 
-### 13. Release Plan, Milestones & Rollout Strategy
+### 13. Release Plan, Milestones & Definition of Done (DoD)
 - **Milestone 4.1 (Days 1–2):** Billing KPI Overview & drill-down metrics.
 - **Milestone 4.2 (Days 3–5):** True-status Payments console and attempt detail slide-out drawer.
 - **Milestone 4.3 (Days 6–7):** Collections Workbench and offline payment reconciliation modal.
@@ -243,9 +268,77 @@ export interface DunningPolicy {
 
 ---
 
-### 14. Open Questions, Risks & Dependencies
-- **Risk:** Gateway webhooks may arrive out of order during network congestion.
-  - *Mitigation:* Webhook handler orders events by gateway transaction timestamp, not HTTP arrival time.
-- **Dependency:** Template library from Sprint 6 must provide email/SMS templates for dunning step configuration.
-- **Open Question:** Should partial offline payments reset customer health immediately?
-  - *Resolution:* Partial payments update balance but keep health badge as `Due Soon` until fully cleared.
+#### Definition of Done (DoD)
+- [ ] Payments console shows true failed count matching payment gateway webhooks.
+- [ ] Recording an offline payment removes customer from Collections queue immediately.
+- [ ] Dunning steps cannot be saved with blank or unassigned communication templates.
+
+---
+
+### 14. Architectural Risks, Mitigations & Dependencies
+
+#### Key Architectural Risks & Mitigations
+- **Risk & Mitigation:** Chasing customers who have already paid offline before reconciliation is logged.
+- **Risk & Mitigation:** Accidental automated suspension of key VIP accounts (mitigated by 'Skip Paused').
+
+#### External & Internal Dependencies
+- Database schema migrations and tenant isolation verified prior to deployment.
+- Google Fonts and Lucide icon assets bundled locally without unauthenticated CDN lock-in.
+
+---
+
+### 15. Open Questions, Decisions & Next Steps
+
+#### Open Architectural Questions & Decisions
+- **Question:** When does automated dunning suspend customer merchant services?
+  - *Decision / Recommendation:* Three notifications over 14 days (Day 1, 7, 14); automated access suspension triggered on Day 15 at 00:00 UTC.
+- **Question:** How are idempotency keys structured for payment reconciliation?
+  - *Decision / Recommendation:* UUIDv4 passed in Idempotency-Key HTTP header with 24-hour Redis TTL cache to prevent double-charges.
+
+#### Next Sprint Handover & Follow-ups
+- Verify acceptance criteria and automated tests are green before advancing to Sprint 5 (Growth Pipeline: Leads & Partners).
+- Conduct sprint retrospective and synchronize status tokens in roadmap database.
+
+### 16. Test Cases, Use Cases & QA Acceptance Scenarios
+
+| Test ID | Category | Severity | Persona | Title | Expected Outcome |
+|---|---|---|---|---|---|
+| `TC-4.1` | Happy Path | **Critical** | Billing Accountant | Invoice PDF Generation & Tax / WHT Breakdown | Line items correctly calculate: Subtotal: ₦1,000,000; VAT: +₦75,000; WHT: -₦50,000; Net Payable: ₦1,025,000. PDF generates cleanly with company header and tax ID. |
+| `TC-4.2` | Edge Case | **Critical** | Payment Operations Engineer | Payment Double-Charge Prevention via Idempotency Key | Submit button immediately locks into loading state with spinner. Both requests send identical Idempotency-Key header; backend returns HTTP 200 for the first and deduplicates the second, ensuring customer is charged exactly once. |
+| `TC-4.3` | Happy Path | **High** | Collections Specialist | Three-Stage Dunning Workflow with Automated Grace Period | Day 1: Dunning Stage 1 email sent (Soft Reminder). Day 7: Stage 2 SMS + Email sent (Urgent Notice). Day 14: Final Warning sent. Day 15: Account status transitions to Suspended and webhook notifies tenant gateway. |
+| `TC-4.4` | Security / RBAC | **High** | Treasury Officer | Offline Bank Transfer Receipt Verification & Maker-Checker Gate | Finance Clerk cannot self-approve their own submission; secondary supervisor role required to approve invoice to 'Paid' status. |
+
+#### Detailed Validation Procedures
+
+##### [TC-4.1] Invoice PDF Generation & Tax / WHT Breakdown
+- **Category:** Happy Path | **Severity:** Critical | **Persona:** Billing Accountant | **Story:** `US-4.1`
+- **Preconditions:** Customer invoice #INV-2026-0042 with subtotal ₦1,000,000, VAT 7.5%, WHT 5%.
+- **Execution Steps:**
+  1. Open invoice detail view.
+  2. Verify financial calculation summary.
+  3. Click 'Download PDF'.
+- **Pass Criteria:** Line items correctly calculate: Subtotal: ₦1,000,000; VAT: +₦75,000; WHT: -₦50,000; Net Payable: ₦1,025,000. PDF generates cleanly with company header and tax ID.
+
+##### [TC-4.2] Payment Double-Charge Prevention via Idempotency Key
+- **Category:** Edge Case | **Severity:** Critical | **Persona:** Payment Operations Engineer | **Story:** `US-4.2`
+- **Preconditions:** Network latency simulated at 2,000ms.
+- **Execution Steps:**
+  1. User clicks 'Pay Now' on ₦50,000 invoice.
+  2. User rapidly double-clicks the submit button within 150ms.
+- **Pass Criteria:** Submit button immediately locks into loading state with spinner. Both requests send identical Idempotency-Key header; backend returns HTTP 200 for the first and deduplicates the second, ensuring customer is charged exactly once.
+
+##### [TC-4.3] Three-Stage Dunning Workflow with Automated Grace Period
+- **Category:** Happy Path | **Severity:** High | **Persona:** Collections Specialist | **Story:** `US-4.3`
+- **Preconditions:** Invoice becomes 1 day overdue.
+- **Execution Steps:**
+  1. Observe dunning state transitions on Day 1, Day 7, Day 14, and Day 15.
+- **Pass Criteria:** Day 1: Dunning Stage 1 email sent (Soft Reminder). Day 7: Stage 2 SMS + Email sent (Urgent Notice). Day 14: Final Warning sent. Day 15: Account status transitions to Suspended and webhook notifies tenant gateway.
+
+##### [TC-4.4] Offline Bank Transfer Receipt Verification & Maker-Checker Gate
+- **Category:** Security / RBAC | **Severity:** High | **Persona:** Treasury Officer | **Story:** `US-4.2`
+- **Preconditions:** Offline bank transfer receipt uploaded by customer for ₦500,000.
+- **Execution Steps:**
+  1. Finance Clerk verifies receipt and submits approval.
+  2. System checks if Maker is the same as Checker.
+- **Pass Criteria:** Finance Clerk cannot self-approve their own submission; secondary supervisor role required to approve invoice to 'Paid' status.
+

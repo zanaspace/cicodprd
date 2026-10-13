@@ -10,7 +10,6 @@
 - **Author:** CICOD Product & Architecture Team
 - **Target Sprint:** Sprint 6 (Week 7)
 - **Target Audience:** Growth Directors, Lifecycle Marketers, Support Operations Leads, Software Engineers
-- **Reference Code:** [messaging/page.tsx](file:///c:/Users/CI-STAFF/Documents/CICOD%20TEST/Cicod%20CRM/src/app/crm/growth/messaging/page.tsx), [campaigns/page.tsx](file:///c:/Users/CI-STAFF/Documents/CICOD%20TEST/Cicod%20CRM/src/app/crm/growth/campaigns/page.tsx), [NotificationsView.tsx](file:///c:/Users/CI-STAFF/Documents/CICOD%20TEST/Cicod%20CRM/src/app/crm/settings/components/NotificationsView.tsx)
 - **Last Updated:** 2026-10-13
 
 ---
@@ -21,15 +20,9 @@ In the legacy platform, campaigns consisted merely of a name and dates with no a
 Sprint 6 implements an omnichannel communication engine: a **Shared Communication Template Library** (Email and SMS with dynamic placeholder chips and character counting), an interactive **5-Step Campaign Builder** with live recipient validation, an **Automated Event Trigger Engine** for critical tenant lifecycle milestones, and an actionable **Subscriber Conversion Hub**.
 
 #### Core Deliverables
-1. **Shared Multi-Channel Template Library:** Central repository of categorized templates (`Billing`, `Marketing`, `Onboarding`, `Transactional`) with click-to-insert variable tokens.
-2. **Dynamic SMS Credit & Character Counter:** Real-time character counter showing segment breakdowns (e.g., 142/160 chars = 1 SMS; 184/160 chars = 2 SMS).
-3. **Template Mismatch Safety Guard:** Warning modals preventing commercial marketing templates from being mistakenly wired into formal legal dunning notices.
-4. **5-Step Campaign Builder:** Full stepper workflow covering Objective, Audience Segment Filtering, Message & Preview, Scheduling, and Readiness Verification.
-5. **Campaign Analytics Funnel:** Real-time delivery funnel visualization (*Sent → Delivered → Opened → Clicked → Converted*).
-6. **Automated Event Trigger Engine:** Event-driven notification rules responding to `customer.created`, `trial.ending`, `payment.failed`, and `subscription.suspended`.
-7. **Subscriber Management Desk:** Central hub converting website newsletter subscribers into active sales pipeline leads.
-
----
+1. **Shared Template Library (`s6-d1`):** Centralized SMS and Email templates used by both Campaigns and Dunning. *[Tags: Templates, Email/SMS]*
+2. **5-Step Campaign Builder (`s6-d2`):** Basics → Audience Segmentation → Message → Schedule → Review & Launch. *[Tags: Campaigns, Segmentation]*
+3. **Automated Event Notification Triggers (`s6-d3`):** Bind system events (Trial ending, Payment failed) to communication rules. *[Tags: Triggers, Automation]*
 
 ### 3. Product Vision & Strategic Objectives
 - **Cohesive Brand Voice:** Eliminate embarrassing template mismatches across billing, onboarding, and promotional touchpoints.
@@ -47,13 +40,10 @@ Sprint 6 implements an omnichannel communication engine: a **Shared Communicatio
 
 ### 5. Scope Boundaries
 
-#### 5.1 In-Scope
-- Shared Template Library for Email & SMS (`/crm/growth/messaging`).
-- Variable chips (`{{customer_name}}`, `{{payment_link}}`, `{{due_date}}`, etc.).
-- 5-step campaign builder (`/crm/growth/campaigns/new`) with live audience count.
-- Campaign delivery funnel analytics view (`/crm/growth/campaigns/[id]`).
-- System notification event trigger bindings (`/crm/settings/notifications`).
-- Newsletter subscriber directory with one-click "Create Lead" action.
+#### 5.1 In-Scope Deliverables
+- **Shared Template Library:** Centralized SMS and Email templates used by both Campaigns and Dunning.
+- **5-Step Campaign Builder:** Basics → Audience Segmentation → Message → Schedule → Review & Launch.
+- **Automated Event Notification Triggers:** Bind system events (Trial ending, Payment failed) to communication rules.
 
 #### 5.2 Out-of-Scope
 - Full visual drag-and-drop HTML email WYSIWYG builder (rich text and clean markdown template format utilized for deliverability).
@@ -132,25 +122,48 @@ flowchart TD
 
 ---
 
-### 9. Detailed User Stories & Acceptance Criteria
+### 9. Detailed User Stories & Sprint Tasks
 
-#### User Story 6.1: Variable Token Injection
-*As a Lifecycle Marketer, I want to click variable chips to insert customer names and payment links, so that messages are personalized without template syntax errors.*
-- **AC-6.1.1:** Clicking `{{customer_name}}` inserts the exact token at the current cursor position in the message body.
-- **AC-6.1.2:** Preview pane displays the resolved token with realistic mock data (e.g., "Hello Acme Ltd").
+#### US-6.1 (Deliverable: Shared Template Library): Unified Multichannel Template Authoring
+*As a Marketing & Communications Specialist, I want a unified template library for SMS and Email messages with variable placeholder chips and character counters so that marketing campaigns and automated dunning notices share brand-approved, error-free copy.*
 
-#### User Story 6.2: Pre-Send Recipient Validation
-*As a Growth Marketing Manager, I want to see the exact recipient count before launching an SMS blast, so that we avoid accidental overages or sending to unintended segments.*
-- **AC-6.2.1:** Selecting audience filters displays live recipient count in Step 2.
-- **AC-6.2.2:** Launch modal displays: *"You are about to send 1,200 SMS messages (2 credits each = 2,400 total credits). Confirm?"*.
+- **Acceptance Criteria**:
+  - Channel filter for SMS vs Email with variable tags ({{customer_name}}, {{due_date}}).
+  - SMS editor calculates exact character count and segment billing (160 chars/SMS).
+  - Flags warnings if templates contain invalid or unmapped variable tags.
 
-#### User Story 6.3: Automated Failed Payment Alerts
-*As an Operations Specialist, I want the system to automatically trigger an SMS when a payment fails, so that merchants can update their card before service suspension.*
-- **AC-6.3.1:** When `payment.failed` fires, the assigned template dispatches with the customer's unique payment link.
+- **Outlined Sprint Tasks**:
+  - [ ] `s6-1` (FRONTEND · L): **Build Template Library with channel filters & usage badges** - *Flag mismatches (e.g. warning when billing dunning uses marketing template).*
+  - [ ] `s6-2` (FRONTEND · M): **Implement variable placeholder chips & SMS character counter** - *One-click chip insertion ({{customer_name}}, {{due_date}}) with segment count.*
+  - [ ] `s6-6` (FRONTEND · M): **Rich HTML email preview drawer with desktop/mobile switcher** - *Render preview iframe toggling between 375px phone and 600px desktop email views.*
 
----
+#### US-6.2 (Deliverable: 5-Step Campaign Builder): Targeted Audience Campaign Scheduling
+*As a Growth Marketing Lead, I want a 5-step wizard to target audience segments, select templates, schedule delivery, and review performance funnels so that I can launch targeted retention or promo campaigns and measure conversion results.*
 
-### 10. Technical Architecture & Data Models
+- **Acceptance Criteria**:
+  - 5 steps: Basics → Audience Query → Message Selection → Schedule → Launch.
+  - Real-time estimated recipient count before dispatch.
+  - Campaign reporting dashboard displays Sent, Delivered, Opened, and Converted funnels.
+
+- **Outlined Sprint Tasks**:
+  - [ ] `s6-3` (FRONTEND · XL): **Build 5-step Campaign Builder wizard** - *Filter audience by customer segment, partner type, or pipeline stage.*
+  - [ ] `s6-4` (FRONTEND · M): **Build Campaign Results funnel visualization** - *Sent → Delivered → Opened → Converted metrics with exportable report.*
+  - [ ] `s6-7` (BACKEND · L): **Campaign batch dispatch queue worker and throttling logic** - *Backend worker scheduling outbound SMS/Email dispatch through gateway provider.*
+
+#### US-6.3 (Deliverable: Automated Event Notification Triggers): Lifecycle Event Notification Automation
+*As a Product Operations Specialist, I want a system trigger console to map lifecycle events (Trial Ending, Invoice Overdue) to automatic communication rules so that critical customer lifecycle events notify merchants automatically without manual staff intervention.*
+
+- **Acceptance Criteria**:
+  - Supported triggers: Trial Ending (3 days), Payment Succeeded, Renewal Overdue, Tenant Suspended.
+  - Allows toggling triggers on/off and selecting approved template.
+  - Execution log records notification dispatch history and delivery receipts.
+
+- **Outlined Sprint Tasks**:
+  - [ ] `s6-5` (FRONTEND · M): **Build System Notification Triggers view** - *Toggle automated notifications on/off per event with template selection.*
+  - [ ] `s6-8` (BACKEND · L): **Event bus webhook listener triggering message dispatch** - *Subscribe to billing and onboarding domain events to trigger associated templates.*
+  - [ ] `s6-9` (BACKEND · M): **Trigger delivery fallback and failure retry handler** - *Automatic secondary channel retry (e.g. SMS fallback on undelivered email).*
+
+### 10. Technical Architecture, Data Models & API Contracts
 
 #### Communication Schemas
 ```typescript
@@ -211,6 +224,18 @@ export interface TriggerRuleDTO {
 
 ---
 
+#### REST API Contracts
+
+| Method | Endpoint | Functional Contract & Payload Expectation |
+|---|---|---|
+| `GET` | `/api/v2/messaging/templates` | List templates with category, channel, and active usage matrix. |
+| `POST` | `/api/v2/campaigns` | Creates campaign draft with audience query filters and message body. |
+| `POST` | `/api/v2/campaigns/{id}/launch` | Dispatches campaign job to message broker after confirmation. |
+| `GET` | `/api/v2/settings/triggers` | Configured event notification bindings. |
+
+
+---
+
 ### 11. Edge Cases & Error Handling Strategies
 - **Missing Customer Variable Data:** If a template includes `{{contact_name}}` but the record has no contact name, the engine gracefully falls back to "Valued Customer".
 - **SMS Exceeding Maximum Concatenation:** If an SMS body exceeds 612 characters (4 concatenated segments), the editor blocks input and advises switching to email.
@@ -226,7 +251,7 @@ export interface TriggerRuleDTO {
 
 ---
 
-### 13. Release Plan, Milestones & Rollout Strategy
+### 13. Release Plan, Milestones & Definition of Done (DoD)
 - **Milestone 6.1 (Days 1–3):** Shared template library with variable token chips and SMS character counting.
 - **Milestone 6.2 (Days 4–6):** 5-step campaign builder and live audience estimation engine.
 - **Milestone 6.3 (Days 7–8):** Campaign delivery analytics funnel and subscriber conversion desk.
@@ -234,9 +259,74 @@ export interface TriggerRuleDTO {
 
 ---
 
-### 14. Open Questions, Risks & Dependencies
-- **Risk:** High-volume broadcast dispatches could impact transactional email deliverability if sharing the same IP pool.
-  - *Mitigation:* Isolate marketing campaigns onto a dedicated sending IP pool separate from critical transactional and dunning emails.
-- **Dependency:** Dunning Policy builder from Sprint 4 relies on Billing category templates from this module.
-- **Open Question:** Should campaigns support multi-stage drip sequences in v1?
-  - *Resolution:* Sprint 6 focuses on single broadcast campaigns; multi-stage drip branching is slated for v2.2.
+#### Definition of Done (DoD)
+- [ ] Template editor warns if placeholder variable is missing from target trigger payload.
+- [ ] Campaign launch is blocked until audience estimation returns > 0 recipients.
+- [ ] SMS message preview shows exact segment breakdown (160 characters per SMS).
+
+---
+
+### 14. Architectural Risks, Mitigations & Dependencies
+
+#### Key Architectural Risks & Mitigations
+- **Risk & Mitigation:** High SMS provider costs if audience segmentation is too broad.
+- **Risk & Mitigation:** Email deliverability/spam flagging if template unsubscription link is omitted.
+
+#### External & Internal Dependencies
+- Database schema migrations and tenant isolation verified prior to deployment.
+- Google Fonts and Lucide icon assets bundled locally without unauthenticated CDN lock-in.
+
+---
+
+### 15. Open Questions, Decisions & Next Steps
+
+#### Open Architectural Questions & Decisions
+- **Question:** What failover exists if the primary SMS gateway experiences downtime?
+  - *Decision / Recommendation:* Automatic fallback to secondary SMS provider after 2 consecutive 5xx errors or 3000ms timeout.
+- **Question:** How is message rate-limiting enforced across multi-channel campaigns?
+  - *Decision / Recommendation:* Token bucket algorithm capping outbound dispatches at 100 msgs/second per merchant account.
+
+#### Next Sprint Handover & Follow-ups
+- Verify acceptance criteria and automated tests are green before advancing to Sprint 7 (Administration, RBAC, Keys & Audit Logging).
+- Conduct sprint retrospective and synchronize status tokens in roadmap database.
+
+### 16. Test Cases, Use Cases & QA Acceptance Scenarios
+
+| Test ID | Category | Severity | Persona | Title | Expected Outcome |
+|---|---|---|---|---|---|
+| `TC-6.1` | Happy Path | **Critical** | Lifecycle Marketing Manager | Multi-Channel Triggered Event Message Dispatch | Message engine evaluates dynamic tags ({{customer.name}}, {{invoice.amount}}), compiles template, and dispatches to SMS gateway and Email SMTP in < 250ms. |
+| `TC-6.2` | Edge Case | **Critical** | DevOps / SRE | Secondary Provider Fallback on Primary Gateway Timeout | Circuit breaker trips after 2 consecutive timeouts; remaining 48 messages automatically reroute through secondary gateway with zero message drop. |
+| `TC-6.3` | Security / RBAC | **High** | Compliance Auditor | Customer Opt-Out & Regulatory Compliance Gate | Campaign audience filter strictly excludes opted-out customer. Excluded count logged in campaign pre-flight summary with reason 'Unsubscribed'. |
+| `TC-6.4` | Happy Path | **Medium** | Growth Marketer | Real-Time Campaign Delivery Analytics & Bounce Rate Telemetry | Displays delivered (98.4%), hard bounces (0.8%), soft bounces (0.8%), and open rate (34.2%) with real-time websocket feed. |
+
+#### Detailed Validation Procedures
+
+##### [TC-6.1] Multi-Channel Triggered Event Message Dispatch
+- **Category:** Happy Path | **Severity:** Critical | **Persona:** Lifecycle Marketing Manager | **Story:** `US-6.1`
+- **Preconditions:** Event rule configured: event: payment.succeeded -> send SMS + Email.
+- **Execution Steps:**
+  1. Trigger payment.succeeded event webhook.
+- **Pass Criteria:** Message engine evaluates dynamic tags ({{customer.name}}, {{invoice.amount}}), compiles template, and dispatches to SMS gateway and Email SMTP in < 250ms.
+
+##### [TC-6.2] Secondary Provider Fallback on Primary Gateway Timeout
+- **Category:** Edge Case | **Severity:** Critical | **Persona:** DevOps / SRE | **Story:** `US-6.3`
+- **Preconditions:** Primary SMS provider simulated returning HTTP 504 Gateway Timeout.
+- **Execution Steps:**
+  1. Dispatch outbound campaign batch of 50 messages.
+- **Pass Criteria:** Circuit breaker trips after 2 consecutive timeouts; remaining 48 messages automatically reroute through secondary gateway with zero message drop.
+
+##### [TC-6.3] Customer Opt-Out & Regulatory Compliance Gate
+- **Category:** Security / RBAC | **Severity:** High | **Persona:** Compliance Auditor | **Story:** `US-6.2`
+- **Preconditions:** Customer has opted out of marketing communications (marketing_opt_in: false).
+- **Execution Steps:**
+  1. Marketing manager launches promotional broadcast campaign.
+- **Pass Criteria:** Campaign audience filter strictly excludes opted-out customer. Excluded count logged in campaign pre-flight summary with reason 'Unsubscribed'.
+
+##### [TC-6.4] Real-Time Campaign Delivery Analytics & Bounce Rate Telemetry
+- **Category:** Happy Path | **Severity:** Medium | **Persona:** Growth Marketer | **Story:** `US-6.4`
+- **Preconditions:** Campaign dispatched to 5,000 contacts.
+- **Execution Steps:**
+  1. Open Campaign Telemetry view.
+  2. Observe live progress ring.
+- **Pass Criteria:** Displays delivered (98.4%), hard bounces (0.8%), soft bounces (0.8%), and open rate (34.2%) with real-time websocket feed.
+

@@ -10,7 +10,6 @@
 - **Author:** CICOD Product & Architecture Team
 - **Target Sprint:** Sprint 2 (Week 3)
 - **Target Audience:** Commercial Directors, Product Managers, Billing Ops, Frontend & Backend Engineers
-- **Reference Code:** [catalogue/page.tsx](file:///c:/Users/CI-STAFF/Documents/CICOD%20TEST/Cicod%20CRM/src/app/crm/catalogue/page.tsx), [PlanEditor.tsx](file:///c:/Users/CI-STAFF/Documents/CICOD%20TEST/Cicod%20CRM/src/app/crm/catalogue/components/PlanEditor.tsx), [BundleEditor.tsx](file:///c:/Users/CI-STAFF/Documents/CICOD%20TEST/Cicod%20CRM/src/app/crm/catalogue/components/BundleEditor.tsx)
 - **Last Updated:** 2026-10-13
 
 ---
@@ -21,14 +20,9 @@ The legacy commercial catalogue was fragmented across 7 disjointed tables (`Prod
 Sprint 2 unifies the commercial catalogue into a master **Products & Plans Workspace**, a full-page **5-Step Plan Editor**, a **Bundle Editor**, and a **Global Pricing Gap Matrix**, enforcing strict lifecycle governance: `Draft → Live (Published) → Archived`.
 
 #### Core Deliverables
-1. **Two-Pane Products & Plans Workspace:** Product tree on left; plan comparison cards, status badges, and inline feature matrix on right.
-2. **Full-Page 5-Step Plan Editor:** Dedicated flow covering Basics, Feature Checklist, Multi-Currency Pricing (NGN/USD/GBP), Trial/Extras, and Live Preview Review.
-3. **Smart Pricing Matrix Automation:** "Fill Annual at 10×" quick action for annual billing calculation and mismatch validation warnings.
-4. **Bundle Composition Studio:** Dynamic multi-product bundle composer with license/storage caps and automated savings calculation.
-5. **Global Pricing Gap Matrix:** Cross-product audit grid highlighting missing international currencies and billing periods.
-6. **Publishing & Archiving Safety Guard:** Blocking validations preventing plan archival if active customers or active bundles depend on it.
-
----
+1. **Products & Plans Tree Workspace (`s2-d1`):** Product sidebar on left; comparative plan cards and feature checklist on right. *[Tags: Catalogue, Plans, Features]*
+2. **5-Step Plan Editor Stepper (`s2-d2`):** Basics → Features checklist → Multi-currency Pricing matrix → Trial & Extras → Review & Publish. *[Tags: Plan Editor, Pricing Matrix, Stepper]*
+3. **Bundle Editor & Savings Engine (`s2-d3`):** Compose multi-product bundles, set seat limits, and calculate customer savings. *[Tags: Bundles, Discounts, Licensing]*
 
 ### 3. Product Vision & Strategic Objectives
 - **Commercial Single Source of Truth:** Eliminate conflicting duplicate offers and create a coherent commercial definition for every tier.
@@ -46,15 +40,10 @@ Sprint 2 unifies the commercial catalogue into a master **Products & Plans Works
 
 ### 5. Scope Boundaries
 
-#### 5.1 In-Scope
-- Master Products & Plans two-pane interface (`/crm/catalogue`).
-- Inline product feature inventory and plan comparison matrix (✓ vs —).
-- 5-step full-page plan editor (`/crm/catalogue/plans/new` and `/crm/catalogue/plans/[code]`).
-- Multi-currency rate matrix (NGN base, USD, GBP) across Monthly and Annual intervals.
-- "Fill Annual at 10×" automation and gap validation badges.
-- Bundle editor with per-product single-plan constraint and bundle savings display (`/crm/catalogue/bundles`).
-- Global pricing audit view (`/crm/catalogue/pricing`) with "Gaps Only" filter.
-- Obsolete legacy offer archival behind collapsible drawer.
+#### 5.1 In-Scope Deliverables
+- **Products & Plans Tree Workspace:** Product sidebar on left; comparative plan cards and feature checklist on right.
+- **5-Step Plan Editor Stepper:** Basics → Features checklist → Multi-currency Pricing matrix → Trial & Extras → Review & Publish.
+- **Bundle Editor & Savings Engine:** Compose multi-product bundles, set seat limits, and calculate customer savings.
 
 #### 5.2 Out-of-Scope
 - Live real-time FX rate synchronization from external central banks (static merchant curation retained).
@@ -134,27 +123,48 @@ flowchart TD
 
 ---
 
-### 9. Detailed User Stories & Acceptance Criteria
+### 9. Detailed User Stories & Sprint Tasks
 
-#### User Story 2.1: Multi-Currency Plan Setup
-*As a Commercial Product Manager, I want to define Monthly and Annual pricing across NGN, USD, and GBP with quick 10x annual autofill, so that I can publish international tiers without manual calculation errors.*
-- **AC-2.1.1:** Given a monthly price of `₦50,000`, when the user clicks "Fill Annual at 10×", the annual field immediately populates with `₦500,000`.
-- **AC-2.1.2:** Given an entered USD monthly price of `$100` and an empty annual USD price, an amber warning badge must notify the user before advancing past Step 3.
-- **AC-2.1.3:** Plan cannot be published without at least one valid price in the base currency (NGN).
+#### US-2.1 (Deliverable: Products & Plans Tree Workspace): Products & Plans Two-Pane Explorer
+*As a Commercial Product Manager, I want a split-pane Products & Plans workspace with product tree on left and comparative plan cards on right so that I can visually evaluate plan feature differences and pricing tiers without toggling screens.*
 
-#### User Story 2.2: Safe Plan Archiving
-*As a Billing Specialist, I want the system to block archiving any plan with active subscribers, so that we avoid breaking active customer billing contracts.*
-- **AC-2.2.1:** When an administrator clicks "Archive" on an active plan, the system queries the active customer count.
-- **AC-2.2.2:** If active customer count > 0, a modal surfaces: *"Cannot archive plan. 1,204 active customers are subscribed. Migrate customers first."* The archive action is rejected.
+- **Acceptance Criteria**:
+  - Sidebar displays all active software products with live plan counters.
+  - Comparative cards show monthly/annual prices, features checklist, and status badges.
+  - Search and filter isolates plans by status (Draft, Live, Archived).
 
-#### User Story 2.3: Bundled Offer Creation
-*As a Sales Director, I want to assemble bundle tiers from multiple products with clear package discounts, so that clients can buy unified solutions at attractive bundle rates.*
-- **AC-2.3.1:** The user can select one plan from "UCG" and one plan from "COM".
-- **AC-2.3.2:** The bundle editor displays the sum of standalone prices, the entered bundle price, and the calculated % savings.
+- **Outlined Sprint Tasks**:
+  - [ ] `s2-1` (FRONTEND · L): **Build Products & Plans explorer view** - *Display active plans side-by-side with feature comparison matrix.*
+  - [ ] `s2-6` (FRONTEND · M): **Implement product tree filter sidebar with category badges** - *Sidebar displaying live product categories, tier counts, and status filters.*
+  - [ ] `s2-7` (FRONTEND · M): **Comparative plan feature diff visualizer** - *Highlight included and excluded features across Starter, Standard, and Enterprise tiers.*
 
----
+#### US-2.2 (Deliverable: 5-Step Plan Editor Stepper): Multi-Currency Plan Creation Wizard
+*As a Pricing Specialist, I want a structured 5-step wizard to configure plan basics, features, multi-currency matrix, trials, and publishing so that I never publish incomplete plans with missing currency equivalents or unverified terms.*
 
-### 10. Technical Architecture & Data Models
+- **Acceptance Criteria**:
+  - 5-step wizard enforces: Basics → Features → Pricing Matrix → Trial/Extras → Review.
+  - Pricing matrix supports NGN, USD, GBP, EUR with annual 10x multiplier shortcut.
+  - Live preview card updates dynamically as pricing and features are edited.
+
+- **Outlined Sprint Tasks**:
+  - [ ] `s2-2` (FRONTEND · M): **Implement Pricing Matrix table with NGN/USD/GBP** - *Include annual pricing autofill helper (10x monthly = 2 months free).*
+  - [ ] `s2-3` (FRONTEND · XL): **Build Plan Editor 5-step stepper with live preview card** - *Interactive wizard with real-time public pricing card visualization.*
+  - [ ] `s2-5` (BACKEND · M): **Enforce Lifecycle: Draft → Live → Archived** - *Block archiving if active customers or bundles reference the plan.*
+
+#### US-2.3 (Deliverable: Bundle Editor & Savings Engine): Multi-Product Bundle Composer & Savings Engine
+*As a Sales Operations Director, I want a Bundle Editor to compose multi-product software packages with custom seat licensing and savings calculations so that we can sell bundled solution packages that clearly show merchant percentage discounts.*
+
+- **Acceptance Criteria**:
+  - Allows selecting 1 active plan per included product with seat minimums/maximums.
+  - Automatically calculates aggregate individual price vs bundle discounted price.
+  - Publishing checks that all component plans are in Live status.
+
+- **Outlined Sprint Tasks**:
+  - [ ] `s2-4` (FRONTEND · L): **Implement Bundle Editor with product chips** - *Select 1 live plan per product and define minimum/maximum user licenses.*
+  - [ ] `s2-8` (FRONTEND · S): **Build bundle customer savings computation engine** - *Compute bundle discount percentages and display comparative customer ROI badge.*
+  - [ ] `s2-9` (BACKEND · M): **Bundle component dependency validator in backend** - *Prevent deletion or unpublishing of plans active inside public bundles.*
+
+### 10. Technical Architecture, Data Models & API Contracts
 
 #### Data Schema (`src/lib/mock/catalogue.ts`)
 ```typescript
@@ -209,6 +219,18 @@ export interface Bundle {
 
 ---
 
+#### REST API Contracts
+
+| Method | Endpoint | Functional Contract & Payload Expectation |
+|---|---|---|
+| `GET` | `/api/v2/catalogue/products` | List products with plan counts and linked features. |
+| `POST` | `/api/v2/catalogue/plans` | Create or update plan draft with multi-currency pricing array. |
+| `PATCH` | `/api/v2/catalogue/plans/{code}/publish` | Publish plan to public catalog after gap-check validation. |
+| `POST` | `/api/v2/catalogue/bundles` | Create bundle combining selected product plan IDs. |
+
+
+---
+
 ### 11. Edge Cases & Error Handling Strategies
 - **Zero-Amount Pricing:** Allowed only if explicitly designated as "Free Tier" with `trialDays: 0` and `billingModel: PERIODIC`.
 - **Negative Pricing Input:** Form input sanitizers reject values `< 0` and display inline field errors.
@@ -225,7 +247,7 @@ export interface Bundle {
 
 ---
 
-### 13. Release Plan, Milestones & Rollout Strategy
+### 13. Release Plan, Milestones & Definition of Done (DoD)
 - **Milestone 2.1 (Days 1–3):** Build two-pane Products & Plans tree workspace and comparative plan cards.
 - **Milestone 2.2 (Days 4–6):** Implement 5-Step Plan Editor with multi-currency matrix and live preview card.
 - **Milestone 2.3 (Days 7–8):** Implement Bundles Workspace and Global Pricing Gap Matrix.
@@ -233,9 +255,77 @@ export interface Bundle {
 
 ---
 
-### 14. Open Questions, Risks & Dependencies
-- **Risk:** Grandfathered legacy customers may be on obsolete plan codes that require automated migration before old plans can be archived.
-  - *Mitigation:* Provide a customer re-assignment wizard in Sprint 3 to migrate legacy subscriptions.
-- **Dependency:** Reference Currencies from Sprint 1 (`NGN`, `USD`, `GBP`) must be populated to power the currency selector.
-- **Open Question:** Should bundle discounts allow custom override percentages or strictly compute against standalone pricing?
-  - *Resolution:* Fixed package rate is entered by the admin; discount % is computed automatically for transparency.
+#### Definition of Done (DoD)
+- [ ] A plan cannot be published without at least one primary currency (NGN) price.
+- [ ] Publishing or unpublishing confirms with full impact summary (affected bundles/users).
+- [ ] Features (Product Captions) are managed directly inside the plan workflow.
+
+---
+
+### 14. Architectural Risks, Mitigations & Dependencies
+
+#### Key Architectural Risks & Mitigations
+- **Risk & Mitigation:** Currency rate volatility if rates are hardcoded rather than configured.
+- **Risk & Mitigation:** Unpublishing a live plan currently selected in an active marketing campaign.
+
+#### External & Internal Dependencies
+- Database schema migrations and tenant isolation verified prior to deployment.
+- Google Fonts and Lucide icon assets bundled locally without unauthenticated CDN lock-in.
+
+---
+
+### 15. Open Questions, Decisions & Next Steps
+
+#### Open Architectural Questions & Decisions
+- **Question:** How should volume discount tiers handle fractional or non-integer quantities?
+  - *Decision / Recommendation:* Quantities are strictly positive integers; fractional billing supported via usage metering in Sprint 4.
+- **Question:** Should multi-currency conversion be real-time or fixed commercial rate?
+  - *Decision / Recommendation:* Fixed commercial rate per billing cycle configured in Reference Data to prevent checkout volatility.
+
+#### Next Sprint Handover & Follow-ups
+- Verify acceptance criteria and automated tests are green before advancing to Sprint 3 (Customer Management & Customer 360).
+- Conduct sprint retrospective and synchronize status tokens in roadmap database.
+
+### 16. Test Cases, Use Cases & QA Acceptance Scenarios
+
+| Test ID | Category | Severity | Persona | Title | Expected Outcome |
+|---|---|---|---|---|---|
+| `TC-2.1` | Happy Path | **Critical** | Billing Manager | Multi-Currency Pricing Matrix Computation | Matrix validates all active currencies. Checkout flows in USD charge exactly $250 without unexpected conversion discrepancies. |
+| `TC-2.2` | Edge Case | **High** | Product Manager | Volume Discount Tier Range Validation & Zero Gap Check | Form validation catches the gap: 'Tier 2 start quantity must be 1,001 to prevent uncovered billing quantities'. Save button disabled. |
+| `TC-2.3` | Happy Path | **High** | Product Operations Lead | Dynamic Service Dependency Resolver in Bundle Builder | Builder flags dependency conflict: 'Starter plan does not meet prerequisite requirements for Advanced AI Assistant'. |
+| `TC-2.4` | Security / RBAC | **Critical** | Billing Administrator | Draft vs Live Plan State Guard on Checkout Enrollment | API returns HTTP 422 Unprocessable Entity: 'Cannot enroll customer into Draft commercial plan. Publish plan to Live before onboarding.' |
+
+#### Detailed Validation Procedures
+
+##### [TC-2.1] Multi-Currency Pricing Matrix Computation
+- **Category:** Happy Path | **Severity:** Critical | **Persona:** Billing Manager | **Story:** `US-2.2`
+- **Preconditions:** Plan 'Cloud ERP Enterprise' created with base currency NGN.
+- **Execution Steps:**
+  1. Define pricing in NGN (₦250,000/mo).
+  2. Add USD ($250/mo) and GBP (£200/mo) price overrides.
+  3. Save plan.
+- **Pass Criteria:** Matrix validates all active currencies. Checkout flows in USD charge exactly $250 without unexpected conversion discrepancies.
+
+##### [TC-2.2] Volume Discount Tier Range Validation & Zero Gap Check
+- **Category:** Edge Case | **Severity:** High | **Persona:** Product Manager | **Story:** `US-2.2`
+- **Preconditions:** Creating tiered pricing for SMS add-on credits.
+- **Execution Steps:**
+  1. Create Tier 1: 1–1,000 units at ₦4.00.
+  2. Attempt to create Tier 2: 1,005–5,000 units at ₦3.50 (creating a 5-unit gap).
+- **Pass Criteria:** Form validation catches the gap: 'Tier 2 start quantity must be 1,001 to prevent uncovered billing quantities'. Save button disabled.
+
+##### [TC-2.3] Dynamic Service Dependency Resolver in Bundle Builder
+- **Category:** Happy Path | **Severity:** High | **Persona:** Product Operations Lead | **Story:** `US-2.3`
+- **Preconditions:** Add-on 'Advanced AI Assistant' requires parent plan 'Pro' or 'Enterprise'.
+- **Execution Steps:**
+  1. Open Bundle Builder.
+  2. Attempt to bundle 'Advanced AI Assistant' with 'Starter' plan.
+- **Pass Criteria:** Builder flags dependency conflict: 'Starter plan does not meet prerequisite requirements for Advanced AI Assistant'.
+
+##### [TC-2.4] Draft vs Live Plan State Guard on Checkout Enrollment
+- **Category:** Security / RBAC | **Severity:** Critical | **Persona:** Billing Administrator | **Story:** `US-2.1`
+- **Preconditions:** Plan plan_draft_99 has status 'Draft'.
+- **Execution Steps:**
+  1. Send customer checkout enrollment request with plan_draft_99.
+- **Pass Criteria:** API returns HTTP 422 Unprocessable Entity: 'Cannot enroll customer into Draft commercial plan. Publish plan to Live before onboarding.'
+

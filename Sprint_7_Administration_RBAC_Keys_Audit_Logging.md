@@ -10,7 +10,6 @@
 - **Author:** CICOD Product & Architecture Team
 - **Target Sprint:** Sprint 7 (Week 8)
 - **Target Audience:** Chief Information Security Officer (CISO), Compliance Officers, System Administrators, Security Engineers
-- **Reference Code:** [users/page.tsx](file:///c:/Users/CI-STAFF/Documents/CICOD%20TEST/Cicod%20CRM/src/app/crm/settings/users/page.tsx), [roles/page.tsx](file:///c:/Users/CI-STAFF/Documents/CICOD%20TEST/Cicod%20CRM/src/app/crm/settings/roles/page.tsx), [audit/page.tsx](file:///c:/Users/CI-STAFF/Documents/CICOD%20TEST/Cicod%20CRM/src/app/crm/settings/audit/page.tsx), [api-keys/page.tsx](file:///c:/Users/CI-STAFF/Documents/CICOD%20TEST/Cicod%20CRM/src/app/crm/settings/api-keys/page.tsx)
 - **Last Updated:** 2026-10-13
 
 ---
@@ -21,15 +20,10 @@ The legacy application suffered catastrophic governance vulnerabilities: 68 out 
 Sprint 7 delivers enterprise-grade security and administrative governance: granular **Role-Based Access Control (RBAC)**, safe **User Management** with a 90+ day stale account review, a secure **Merchant API Key Lifecycle** (hashed secrets shown once), and an immutable, append-only **System Audit Trail**.
 
 #### Core Deliverables
-1. **User Management Desk (`/crm/settings/users`):** Segment tabs for *Active*, *Not signed in 90+ days*, *Invited*, and *Deactivated*.
-2. **Permission Diff Modal:** Visual side-by-side modal displaying capabilities gained (green) and lost (red) before role changes commit.
-3. **Safe Soft-Deactivation:** Replaces dangerous hard delete with soft deactivation and mandatory reason tracking; blocks self-deactivation.
-4. **RBAC Permission Matrix (`/crm/settings/roles`):** Pre-configured standard roles (`Super Admin`, `Billing Ops`, `Sales Rep`, `Support Agent`, `Read-Only`) and custom role builder.
-5. **Secure API Key Lifecycle Studio (`/crm/settings/api-keys`):** Scoped issuance, one-time plaintext secret reveal modal, SHA-256 hashed storage, and safe key revocation.
-6. **Immutable System Audit Ledger (`/crm/settings/audit`):** Append-only audit table logging Actor, IP, Action, Entity, and expandable before/after JSON diffs.
-7. **Compliance CSV Export:** Filtered audit export engine supporting internal and external regulatory compliance reviews.
-
----
+1. **User Management & Role Assignment (`s7-d1`):** Active, Invited, Inactive 90+ days, Deactivated. Role change impact diff modal. *[Tags: Users, RBAC]*
+2. **Role & Permission Matrix (`s7-d2`):** Granular access configuration for Admin, Billing Ops, Sales Rep, Support, Viewer. *[Tags: Permissions, Security]*
+3. **Merchant API Key Lifecycle (`s7-d3`):** Select merchant, generate key shown once with copy CTA, store masked, revoke with reason. *[Tags: API Keys, Security]*
+4. **System Audit Log & Compliance Export (`s7-d4`):** Immutable record of Actor, Event, Entity, Diff, and Timestamp with CSV download. *[Tags: Audit Log, Compliance]*
 
 ### 3. Product Vision & Strategic Objectives
 - **Least-Privilege Enforcement:** Ensure staff members hold only the minimum necessary operational permissions required for their daily duties.
@@ -47,13 +41,11 @@ Sprint 7 delivers enterprise-grade security and administrative governance: granu
 
 ### 5. Scope Boundaries
 
-#### 5.1 In-Scope
-- User directory with status segments and 90+ day stale account triage.
-- Invitation workflow with time-limited token links.
-- Role management matrix with module-level granular scopes (`View`, `Create`, `Edit`, `Suspend`, `Export`).
-- Role change permission diff confirmation modal.
-- Scoped merchant API key generation with one-time secret view.
-- Append-only system audit log with JSON diff inspector and CSV exporter.
+#### 5.1 In-Scope Deliverables
+- **User Management & Role Assignment:** Active, Invited, Inactive 90+ days, Deactivated. Role change impact diff modal.
+- **Role & Permission Matrix:** Granular access configuration for Admin, Billing Ops, Sales Rep, Support, Viewer.
+- **Merchant API Key Lifecycle:** Select merchant, generate key shown once with copy CTA, store masked, revoke with reason.
+- **System Audit Log & Compliance Export:** Immutable record of Actor, Event, Entity, Diff, and Timestamp with CSV download.
 
 #### 5.2 Out-of-Scope
 - Hardware security key (YubiKey / WebAuthn FIDO2) registration (scheduled for post-v2).
@@ -128,26 +120,61 @@ flowchart TD
 
 ---
 
-### 9. Detailed User Stories & Acceptance Criteria
+### 9. Detailed User Stories & Sprint Tasks
 
-#### User Story 7.1: Visual Permission Diff
-*As a Security Administrator, I want to see a before-and-after diff when changing a staff role, so that I do not grant excessive administrative rights by accident.*
-- **AC-7.1.1:** Selecting a new role triggers a modal displaying green badges for newly granted capabilities and red badges for revoked capabilities.
-- **AC-7.1.2:** Committing updates the user's role and logs the event to the audit trail.
+#### US-7.1 (Deliverable: User Management & Role Assignment): Staff User Directory & Least-Privilege Role Assignment
+*As a Enterprise IT Security Manager, I want a staff user directory with active status tabs, 90-day inactive review, and role change diff confirmation so that I can enforce the principle of least privilege and eliminate dormant staff accounts.*
 
-#### User Story 7.2: One-Time API Key Generation
-*As a Developer, I want to generate a secure merchant API key that is displayed once and hashed, so that leaked credentials cannot be extracted from database dumps.*
-- **AC-7.2.1:** Key secret is displayed only in the initial generation modal.
-- **AC-7.2.2:** Subsequent page loads display only the masked suffix `••••ABCD`.
+- **Acceptance Criteria**:
+  - Tabs: Active, Invited, Inactive 90+ days, Deactivated.
+  - Role change modal displays visual diff of gained/revoked permissions before saving.
+  - Self-deactivation is strictly prohibited.
 
-#### User Story 7.3: Compliance Audit Log Inspection
-*As a Compliance Officer, I want to filter audit logs by date and actor to inspect who suspended a customer, so that we satisfy regulatory accountability requirements.*
-- **AC-7.3.1:** Filtering by action `customer.suspend` isolates all suspension events with operator names and timestamps.
-- **AC-7.3.2:** Expanding the row reveals the reason entered by the operator.
+- **Outlined Sprint Tasks**:
+  - [ ] `s7-1` (FRONTEND · M): **Build Users list with status tabs & stale user review** - *Highlight staff not logged in for 90+ days; provide soft deactivation.*
+  - [ ] `s7-2` (FRONTEND · M): **Implement 'Change Role' dialog with permission diff** - *Clearly show what capabilities the user gains or loses before saving.*
+  - [ ] `s7-7` (BACKEND · S): **Automated stale user detection and notification job** - *Cron flag marking inactive staff accounts for quarterly access recertification.*
 
----
+#### US-7.2 (Deliverable: Role & Permission Matrix): Granular Role & Permission Access Control Matrix
+*As a Compliance Officer, I want a granular Roles & Permissions matrix editor to define Create, Read, Update, Delete access per CRM module so that staff access is restricted strictly to their job function without universal Super Admin access.*
 
-### 10. Technical Architecture & Data Models
+- **Acceptance Criteria**:
+  - Preconfigured roles: Super Admin, Billing Ops, Sales Rep, Customer Support, Read-Only Viewer.
+  - Matrix controls access across Customers, Catalogue, Billing, Growth, and Settings.
+  - Custom role creation validates that at least one system admin role is preserved.
+
+- **Outlined Sprint Tasks**:
+  - [ ] `s7-3` (FRONTEND · L): **Build Roles & Permissions matrix editor** - *Tabular matrix of areas (Customers, Billing, Catalogue) vs CRUD permissions.*
+  - [ ] `s7-6` (BACKEND · XL): **Implement centralized Audit Interceptor & RBAC middleware** - *Backend middleware enforcing permission tokens and appending audit rows.*
+  - [ ] `s7-8` (QA · S): **RBAC authorization matrix unit test suite** - *Verify route access blocks for non-permitted roles across 25 endpoints.*
+
+#### US-7.3 (Deliverable: Merchant API Key Lifecycle): Secure Developer API Key Generation & Masking
+*As a Platform Integration Engineer, I want a secure API key generator for merchant integrations with one-time reveal modal and masked storage so that developers can integrate with CICOD CRM APIs without plaintext secrets leaking in databases.*
+
+- **Acceptance Criteria**:
+  - Generates cryptographically secure API keys displayed in full only once.
+  - Stored and displayed as masked strings (••••••••ABCD) on subsequent views.
+  - Revocation modal requires mandatory reason code and immediately invalidates bearer tokens.
+
+- **Outlined Sprint Tasks**:
+  - [ ] `s7-4` (FRONTEND · M): **Build Merchant API Key generator with one-time view modal** - *Display full secret once; list keys masked (••••ABCD) with revoke modal.*
+  - [ ] `s7-9` (BACKEND · M): **API key hashing, encryption at rest, and instant token revocation** - *HMAC hashing and database storage of merchant API keys with revocation check.*
+  - [ ] `s7-10` (QA · S): **API Key authentication middleware and rate-limiting tests** - *Test bearer token validation and 100 req/min rate limits per merchant.*
+
+#### US-7.4 (Deliverable: System Audit Log & Compliance Export): Immutable Audit Trail & Regulatory CSV Export
+*As a Security Auditor, I want an immutable, tamper-evident System Audit Log recording every sensitive mutation with before/after diffs so that our organization complies with regulatory standards and can audit unauthorized data modifications.*
+
+- **Acceptance Criteria**:
+  - Captures Actor, Event, Entity ID, IP address, Timestamp, and before/after JSON diff.
+  - Filter by date range, actor, entity type, and severity.
+  - Export to CSV/JSON for external compliance audits.
+
+- **Outlined Sprint Tasks**:
+  - [ ] `s7-5` (FRONTEND · L): **Build System Audit Log table with filter & CSV export** - *Queryable timeline of system changes with expandable JSON payload diffs.*
+  - [ ] `s7-11` (FRONTEND · S): **Expandable JSON payload diff visualizer for audit rows** - *Visual comparison of modified database records highlighting changed fields.*
+  - [ ] `s7-12` (BACKEND · M): **Immutable append-only audit log database table and indexing** - *High-volume partition indexing ensuring fast audit retrieval by actor and date.*
+
+### 10. Technical Architecture, Data Models & API Contracts
 
 #### Governance Schemas
 ```typescript
@@ -223,6 +250,18 @@ export interface AuditLogEntryDTO {
 
 ---
 
+#### REST API Contracts
+
+| Method | Endpoint | Functional Contract & Payload Expectation |
+|---|---|---|
+| `GET` | `/api/v2/users` | Staff directory with assigned role and last login timestamp. |
+| `PATCH` | `/api/v2/users/{id}/role` | Updates user role; logs actor and reason to audit log. |
+| `POST` | `/api/v2/api-keys` | Generates hashed key; returns plain secret once in response. |
+| `GET` | `/api/v2/audit-log` | Queryable audit log with entity filter and date range. |
+
+
+---
+
 ### 11. Edge Cases & Error Handling Strategies
 - **Attempted Self-Deactivation:** System rejects the API call with HTTP 422: *"Cannot deactivate current authenticated user"*.
 - **Revoking Key with Active Traffic:** System alerts operator: *"This key handled 1,420 calls in the last 24 hours. Revoking will immediately reject further requests."*
@@ -238,7 +277,7 @@ export interface AuditLogEntryDTO {
 
 ---
 
-### 13. Release Plan, Milestones & Rollout Strategy
+### 13. Release Plan, Milestones & Definition of Done (DoD)
 - **Milestone 7.1 (Days 1–3):** User management desk with status segments, invite modal, and stale account filters.
 - **Milestone 7.2 (Days 4–5):** Roles and permissions matrix with Permission Diff confirmation dialog.
 - **Milestone 7.3 (Days 6–7):** Secure API Key generator with one-time display modal and revocation controls.
@@ -246,9 +285,79 @@ export interface AuditLogEntryDTO {
 
 ---
 
-### 14. Open Questions, Risks & Dependencies
-- **Risk:** Existing staff accustomed to shared passwords may resist individual user invitations.
-  - *Mitigation:* Enforce individual work email requirement and disable generic shared credentials.
-- **Dependency:** Reference data roles and permission models must align across all frontend feature guards.
-- **Open Question:** How long should system audit logs be retained online?
-  - *Resolution:* Audit logs remain queryable online for 365 days, followed by immutable cold-storage archival for 7 years.
+#### Definition of Done (DoD)
+- [ ] Staff cannot deactivate their own user account.
+- [ ] API keys cannot be revealed a second time after initial creation modal closes.
+- [ ] All sensitive mutations produce an audit log entry.
+
+---
+
+### 14. Architectural Risks, Mitigations & Dependencies
+
+#### Key Architectural Risks & Mitigations
+- **Risk & Mitigation:** Locking out administrators if default Super Admin permissions are accidentally edited.
+- **Risk & Mitigation:** High volume audit logging impacting database write throughput.
+
+#### External & Internal Dependencies
+- Database schema migrations and tenant isolation verified prior to deployment.
+- Google Fonts and Lucide icon assets bundled locally without unauthenticated CDN lock-in.
+
+---
+
+### 15. Open Questions, Decisions & Next Steps
+
+#### Open Architectural Questions & Decisions
+- **Question:** How long are immutable audit logs retained?
+  - *Decision / Recommendation:* 7 years retention in append-only storage with SHA-256 tamper-evident integrity hashes.
+- **Question:** How are sensitive API keys and client secrets presented upon creation?
+  - *Decision / Recommendation:* Full key secret displayed exactly once upon generation; subsequent views only display masked prefix ck_live_... .
+
+#### Next Sprint Handover & Follow-ups
+- Verify acceptance criteria and automated tests are green before advancing to Sprint 8 (Backend Integration, QA & Production Launch).
+- Conduct sprint retrospective and synchronize status tokens in roadmap database.
+
+### 16. Test Cases, Use Cases & QA Acceptance Scenarios
+
+| Test ID | Category | Severity | Persona | Title | Expected Outcome |
+|---|---|---|---|---|---|
+| `TC-7.1` | Security / RBAC | **Critical** | Security Officer | Granular RBAC Permission Matrix Enforcement | Route guard intercepts navigation and displays 403 Forbidden tile. Sidebar hides Administration menu entirely. API requests to /api/v2/admin/roles return HTTP 403. |
+| `TC-7.2` | Security / RBAC | **Critical** | Developer / Integrator | Live API Key Generation & One-Time Secret Reveal | Full secret (e.g. ck_live_8f92a1...) displayed inside focus-trapped dialog with 'Copy to Clipboard' CTA and warning. Subsequent list views display only masked prefix ck_live_8f92...••••. |
+| `TC-7.3` | Security / RBAC | **Critical** | Compliance Auditor | Tamper-Evident Immutable Audit Log Integrity | Log entry captures Actor ID, IP Address, User Agent, Timestamp (UTC), Action (USER_SUSPEND), Target ID, and reason note. Audit log rows cannot be edited or deleted by any user or administrator. |
+| `TC-7.4` | Security / RBAC | **High** | System Administrator | Multi-Factor Authentication (2FA) TOTP Enforcement on Admin Login | Login halted at 6-digit TOTP verification screen. Session token is not issued until valid authenticator code is entered; 3 failed attempts locks login for 15 minutes. |
+
+#### Detailed Validation Procedures
+
+##### [TC-7.1] Granular RBAC Permission Matrix Enforcement
+- **Category:** Security / RBAC | **Severity:** Critical | **Persona:** Security Officer | **Story:** `US-7.1`
+- **Preconditions:** User account assigned 'Billing Specialist' role (lacks users:manage and settings:edit).
+- **Execution Steps:**
+  1. User logs in.
+  2. User attempts to browse directly to /crm/settings/rbac.
+- **Pass Criteria:** Route guard intercepts navigation and displays 403 Forbidden tile. Sidebar hides Administration menu entirely. API requests to /api/v2/admin/roles return HTTP 403.
+
+##### [TC-7.2] Live API Key Generation & One-Time Secret Reveal
+- **Category:** Security / RBAC | **Severity:** Critical | **Persona:** Developer / Integrator | **Story:** `US-7.2`
+- **Preconditions:** Admin opening /crm/settings/apikeys.
+- **Execution Steps:**
+  1. Click 'Generate API Key'.
+  2. Enter key label and scopes.
+  3. Observe secret modal.
+  4. Close modal and refresh page.
+- **Pass Criteria:** Full secret (e.g. ck_live_8f92a1...) displayed inside focus-trapped dialog with 'Copy to Clipboard' CTA and warning. Subsequent list views display only masked prefix ck_live_8f92...••••.
+
+##### [TC-7.3] Tamper-Evident Immutable Audit Log Integrity
+- **Category:** Security / RBAC | **Severity:** Critical | **Persona:** Compliance Auditor | **Story:** `US-7.3`
+- **Preconditions:** Tenant state change executed (user suspended).
+- **Execution Steps:**
+  1. Open Audit Log table.
+  2. Verify log record details.
+- **Pass Criteria:** Log entry captures Actor ID, IP Address, User Agent, Timestamp (UTC), Action (USER_SUSPEND), Target ID, and reason note. Audit log rows cannot be edited or deleted by any user or administrator.
+
+##### [TC-7.4] Multi-Factor Authentication (2FA) TOTP Enforcement on Admin Login
+- **Category:** Security / RBAC | **Severity:** High | **Persona:** System Administrator | **Story:** `US-7.4`
+- **Preconditions:** Tenant policy enforces mandatory 2FA for Super Admin role.
+- **Execution Steps:**
+  1. Super Admin enters username and password.
+  2. Observe 2FA challenge screen.
+- **Pass Criteria:** Login halted at 6-digit TOTP verification screen. Session token is not issued until valid authenticator code is entered; 3 failed attempts locks login for 15 minutes.
+
